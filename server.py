@@ -64,7 +64,7 @@ class BoardCell:
         if self.spawner:
             d["spawner"] = {"owner": self.spawner.owner, "destroyed": self.spawner.dead}
         if self.unit:
-            d["unit"] = {"owner": self.spawner.owner, "type": self.unit.type}
+            d["unit"] = {"owner": self.unit.owner, "type": self.unit.type}
         return d
 
     def empty(self):
@@ -287,8 +287,7 @@ class GameServer:
 
             self.send_gamestate()
 
-            # Ugly way to keep 30 fps while pretending to be 1 fps
-            self.display.update(4)
+            self.display.update(5)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     print("Game terminated by host.")
@@ -401,13 +400,16 @@ class GameServer:
 
     def send_gamestate(self):
         for i, player in enumerate(self.players):
-            state = {"food": self.players[i].food}
-            units = filter(lambda unit: unit.owner == 0, self.board.units)
-
-        # TODO: send gamestate to all players
-        state = {"test": "lol"}
-        for player in self.players:
+            state = {"map_size": (self.board.width, self.board.height), "player_id": i}
+            units = filter(lambda unit: unit.owner == i, self.board.units)
+            cells = set()
+            for unit in units:
+                x, y = unit.position
+                cells.add(self.board[x][y])
+                cells |= set(self.board.get_neighbour_cells(x, y, 55))
+            state["map"] = [cell.as_dict() for cell in cells]
             player.send_gamestate(state)
+
 
 
 def readCommandlineArguments():
