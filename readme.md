@@ -38,6 +38,9 @@ implementation of majority-wins that allows for flanking. For more details read 
 
 ## TODO:
 * Add animation
+    * Movement
+    * Death-animation
+    * Shooting
 * Make it possible to see type of unit
 * Create python library
 * Complete the readme-file
