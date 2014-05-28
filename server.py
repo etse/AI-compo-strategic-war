@@ -392,6 +392,11 @@ class GameServer:
                         self.board.add_spawner(x, y, int(line[x]))
 
     def send_gamestate(self):
+        for i, player in enumerate(self.players):
+            state = {"food": self.players[i].food}
+            spawners = filter(lambda spawner: spawner.owner == i, self.board.spawners)
+            units = filter(lambda unit: unit.owner == 0, self.board.units)
+
         # TODO: send gamestate to all players
         state = {"test": "lol"}
         for player in self.players:

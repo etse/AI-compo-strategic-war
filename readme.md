@@ -79,6 +79,18 @@ of collecting any food. This unit has a horizontal line through its body.
 ### Destroying spawners
 
 ## The protocol
+Each command sent between client and server shall always be 1 line, and **must** end with a linux-style
+newline: \n. All commands but the first, which you use to register a name with the server must be in
+valid JSON.
+
+The server will always respond with a status-message if you send a command. This can be either
+status OK, which means the server successfully parsed your command or status ERROR, which usually
+means you sent invalid JSON or forgot a newline.
+
+### Registering with server
+When the client connects to the server the first thing it should do is register a name to tell the
+server you are ready. This is done by sending the command following command:
+```name [yourname]```. As allways, remember to end it with a newline.
 
 ## Creating maps
 
