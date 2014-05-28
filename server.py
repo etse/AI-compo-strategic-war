@@ -196,8 +196,7 @@ class Player(threading.Thread):
         self.ready = False
         self.daemon = True
         self.name = ""
-        self.score = 0
-        self.food = 5
+        self.food = 4
         self.mode = Unit
         self.latest_command = {}
         self.buffer = ""
@@ -346,11 +345,11 @@ class GameServer:
         for unit in self.board.units:
             x, y = unit.position
             for enemy in self.board.get_neighbour_enemy_units(x, y, 5, unit.owner):
-                if unit.attackStrength <= enemy.attackStrength:
+                if unit.attackStrength >= enemy.attackStrength:
                     unit.dead = True
-                    deadUnits.append(unit)
+                    if unit not in deadUnits:
+                        deadUnits.append(unit)
                     self.display.draw_attack(enemy, unit)
-                    break
 
         for unit in deadUnits:
             x, y = unit.position

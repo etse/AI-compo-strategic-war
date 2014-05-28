@@ -32,6 +32,6 @@ for line in readline_from_socket(s):
         d = json.loads(line)
         if "status" in d:
             continue
-        s.sendall(json.dumps(get_random_command())+"\n")
+        #s.sendall(json.dumps(get_random_command())+"\n")
     except Exception, e:
         print("Error parsing:", line, e)

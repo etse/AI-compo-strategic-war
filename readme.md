@@ -50,7 +50,25 @@ dead.
 Using the order of execution we can also see that each turn we can move a nearby unit on top of a spawner
 to block it from spawning new units.
 
+In this game *distance* between objects is important, and for combat-range and viewdistance it is important
+that both the client and server handles it the same way if you are to expect your bot to behave correctly.
+Distances are measured as *squered-distance*.
 
+Eample: Lets say we have a unit A on position (2, 5) and a unit B on position (4, 3). To calculate the
+distance between them we would do: ```(4-2)*(4-2) + (3-5)*(3-5) = 8```. As vision-range is set to
+55 this means that the units are able to see each other. But with an attack-range of 5 they are not
+able to fight.
+
+```
+Attack ranges for unit A:
+.......    ...9...
+..xxx..    .85458.
+.xxxxx.    .52125.
+.xxAxx.    9410149
+.xxxxx.    .52125.
+..xxx..    .85458.
+.......    ...9...
+```
 
 ### Movement
 
@@ -77,6 +95,43 @@ a strength of 2. This unit has a vertical line through it
 of collecting any food. This unit has a horizontal line through its body.
 
 ### Battle resolvement
+During the battle-resolvement step the game will check which units will die, and which get to survive.
+This is done using a simple algorithm:
+
+For each unit the game calculates the collective strength of all units inside his attack-radius (currently
+set to 5). If any unit inside his attack radius has lower or equal attack-strength of his combined
+enemies, the unit will be marked for death. As all fights happen simultaneously no units will actually
+die before all fights have been resolved.
+
+In very simple psaudo-code it is something like this:
+```python
+for unit on board:
+    unit.score = sum(enemy.attackstrength for enemy in attackradius)
+    if unit.score >= min(enemy.score for enemy in attackradius):
+        unit.dead = True
+```
+
+Lets take an example, with Alice and Bob. They are currently only using normal units with an attack
+of 2. They got their units in following confrontation;
+```
+.b.
+...
+.a.
+```
+In this setup both Bob and Alice will get attacked by a strength of 2. This means both their units die.
+
+Now look at an example of a wall of 5 units against another wall of 5 units:
+```
+..bbbbb..
+.........
+..aaaaa..
+```
+Now lets calculate the attack-values on all of the units:
+```
+..466664..
+..........
+..466664..
+```
 
 ### Destroying spawners
 
@@ -122,6 +177,7 @@ When those 3 features are implemented you should have a good starting point for 
 more advanced tactics and strategies.
 
 ## Creating maps
+Will write this later. For now: just use the standard map, or create one by using it as example.
 
 ## TODO:
 * Send data to user
