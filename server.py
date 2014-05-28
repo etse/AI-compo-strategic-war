@@ -59,6 +59,14 @@ class BoardCell:
         self.x = x
         self.y = y
 
+    def as_dict(self):
+        d = {"position": (self.x, self.y), "is_wall": self.isWall, "spawner": None, "unit": None, "has_food": self.hasFood}
+        if self.spawner:
+            d["spawner"] = {"owner": self.spawner.owner, "destroyed": self.spawner.dead}
+        if self.unit:
+            d["unit"] = {"owner": self.spawner.owner, "type": self.unit.type}
+        return d
+
     def empty(self):
         return not (self.isWall or self.spawner or self.hasFood or self.unit or self.newUnit)
 
@@ -274,7 +282,7 @@ class GameServer:
 
             self.resolve_fights()
             self.destroy_spawners()
-            if random.randrange(0, 100) < 100:
+            if random.randrange(0, 100) < 10:
                 self.board.spawn_food()
 
             self.send_gamestate()
@@ -394,7 +402,6 @@ class GameServer:
     def send_gamestate(self):
         for i, player in enumerate(self.players):
             state = {"food": self.players[i].food}
-            spawners = filter(lambda spawner: spawner.owner == i, self.board.spawners)
             units = filter(lambda unit: unit.owner == 0, self.board.units)
 
         # TODO: send gamestate to all players

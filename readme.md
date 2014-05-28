@@ -98,6 +98,27 @@ Example:
 <<< {"status": "ok"}\n
 ```
 
+### Sending commands to the server
+How to send commands
+
+### States recieved by the server
+Each turn the game will send you the current state of the game, from your perspective. This means that it
+will only send you data visible by any of your units. Keep in mind that the server will not send you information about your own spawners unless you have visibility
+of it. To remember to save the location if you move your units away. (Additionally: if you leave your
+spawner outside of vision you have no way of knowing if it has been destroyed.
+
+Additionally it will include your player-id and the total size of the map.
+
+## Getting started
+Some good starting tips is to start by trying to implement the following features:
+
+1. Make sure your units does not collide with each other.
+2. Get them to explore and create a map of your surroundings.
+3. Get the units to collect any food it finds.
+
+When those 3 features are implemented you should have a good starting point for trying to implement
+more advanced tactics and strategies.
+
 ## Creating maps
 
 ## TODO:
