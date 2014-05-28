@@ -55,6 +55,24 @@ to block it from spawning new units.
 ### Harvesting food
 
 ### Spawning of new units
+In order to spawn new units the following three criteria must be met:
+
+1. The player must have at least 1 unit of food
+2. The player must have a spawner that is not destroyed
+3. The spawner shall not be blocked by any unit standing on top of it
+
+Each spawner will try to spawn a new unit each turn, where the selected priority is chosen at
+random. If you do not want a specific spawner to spawn units you can block it by moving one of
+your own units on top of it.
+
+There are three different types of units that can be spawned, chosen by the player.
+
+1. **Standard:** This is the most basic unit. This unit can collect food and has an attack-strength
+of 4. Identified by a a circle on the map.
+2. **Harvester:** This unit will get double value for each food collected, but has weaker attack with
+a strength of 2. This unit has a vertical line through it
+3. **Soldier:** This unit is a pure fighting unit with an attack-strength of 5, but he is incapable
+of collecting any food. This unit has a horizontal line through its body.
 
 ### Battle resolvement
 
@@ -65,14 +83,15 @@ to block it from spawning new units.
 ## Creating maps
 
 ## TODO:
+* Make it possible to see type of unit
+* Complete the fight-resolvements
+* Send data to user
+    * Based on visibility
+
 * Add animation
     * Movement
     * Death-animation
     * Shooting
-* Make it possible to see type of unit
 * Create python library
 * Complete the readme-file
-* Complete the fight-resolvements
-* Send data to user
-    * Based on visibility
 

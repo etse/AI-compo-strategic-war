@@ -41,3 +41,11 @@ class Display:
         for unit in board.units:
             px, py = int(unit.position[0]*w+w/2), int(unit.position[1]*h+h/2)
             pygame.draw.circle(self.screen, PLAYERCOLORS[unit.owner], (px, py), int(w/2), 0)
+            if unit.type == "harvester":
+                start = (px-1, py-int(h/2))
+                end = (px-1, py+int(h/2))
+                pygame.draw.line(self.screen, (0, 0, 0), start, end, 2)
+            elif unit.type == "soldier":
+                start = (px-int(w/2), py-1)
+                end = (px+int(w/2), py-1)
+                pygame.draw.line(self.screen, (0, 0, 0), start, end, 2)

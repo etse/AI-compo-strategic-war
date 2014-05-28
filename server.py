@@ -142,17 +142,21 @@ class Unit:
         self.position = position
         self.owner = owner
         self.harvest = 1
-        self.attack = 4
+        self.attack = 3
         self.dead = False
         self.hasMoved = False
         self.numAttackers = 0
+
+    @property
+    def type(self):
+        return self.__class__.__name__.lower()
 
 
 class Harvester(Unit):
     def __init__(self, owner, position):
         Unit.__init__(self, owner, position)
         self.harvest = 2
-        self.attack = 3
+        self.attack = 2
 
 
 class Soldier(Unit):
@@ -165,7 +169,6 @@ class Soldier(Unit):
 class Spawner(Unit):
     def __init__(self, owner, position):
         Unit.__init__(self, owner, position)
-        self.destroyed = False
 
 
 class Player(threading.Thread):
@@ -313,7 +316,7 @@ class GameServer:
         # Spawn new units
         spawners = copy(self.board.spawners)
         random.shuffle(spawners)
-        for spawner in filter(lambda s: not s.destroyed, spawners):
+        for spawner in filter(lambda s: not s.dead, spawners):
             if self.players[spawner.owner].food > 0:
                 if not self.board.any_units_on_position(spawner.position):
                     self.board.add_unit(spawner.position[0], spawner.position[1], spawner.owner)
@@ -324,7 +327,11 @@ class GameServer:
         pass
 
     def destroy_spawners(self):
-        # TODO: Destroy spawners with enemies on top of them.
+        for spawner in filter(lambda s: not s.dead, self.board.spawners):
+            x, y = spawner.position
+            if self.board[x][y].unit is not None:
+                if self.board[x][y].unit.owner != spawner.owner:
+                    spawner.dead = True
         pass
 
     def resolve_food_harvest(self):
@@ -334,7 +341,7 @@ class GameServer:
             harvest = 0
             neighbourCells = self.board.get_neighbour_cells(foodcell.x, foodcell.y, 1)
 
-            for cell in filter(lambda c: c.unit is not None, neighbourCells):
+            for cell in filter(lambda c: c.unit is not None and c.unit.type != "soldier", neighbourCells):
                 players.add(cell.unit.owner)
                 harvest = cell.unit.harvest
                 foodcell.hasFood = False
@@ -378,4 +385,3 @@ if __name__ == '__main__':
     args = readCommandlineArguments()
     server = GameServer(args['port'], args['mapfile'])
     server.start()
-
