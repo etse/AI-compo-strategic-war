@@ -83,8 +83,6 @@ of collecting any food. This unit has a horizontal line through its body.
 ## Creating maps
 
 ## TODO:
-* Make it possible to see type of unit
-* Complete the fight-resolvements
 * Send data to user
     * Based on visibility
 

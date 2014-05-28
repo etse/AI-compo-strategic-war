@@ -15,6 +15,40 @@ from functools import partial
 from copy import copy
 
 
+class Unit:
+    def __init__(self, owner, position):
+        self.position = position
+        self.owner = owner
+        self.harvest = 1
+        self.attack = 3
+        self.dead = False
+        self.hasMoved = False
+        self.attackStrength = 0
+
+    @property
+    def type(self):
+        return self.__class__.__name__.lower()
+
+
+class Harvester(Unit):
+    def __init__(self, owner, position):
+        Unit.__init__(self, owner, position)
+        self.harvest = 2
+        self.attack = 2
+
+
+class Soldier(Unit):
+    def __init__(self, owner, position):
+        Unit.__init__(self, owner, position)
+        self.harvest = 0
+        self.attack = 5
+
+
+class Spawner(Unit):
+    def __init__(self, owner, position):
+        Unit.__init__(self, owner, position)
+
+
 class BoardCell:
     def __init__(self, x, y):
         self.isWall = False
@@ -122,6 +156,11 @@ class GameBoard:
                     cell.newUnit = None
                     cell.unit.hasMoved = False
 
+    def calculate_attack_strengths(self):
+        for unit in self.units:
+            x, y = unit.position
+            unit.attackStrength = sum(u.attack for u in self.get_neighbour_enemy_units(x, y, 5, unit.owner))
+
     def get_offsets(self, distance):
         if distance not in self._offsetcache:
             offsets = []
@@ -136,39 +175,9 @@ class GameBoard:
     def get_neighbour_cells(self, x, y, distance):
         return [self.board[(x+dx) % self.width][(y+dy) % self.height] for dx, dy in self.get_offsets(distance)]
 
-
-class Unit:
-    def __init__(self, owner, position):
-        self.position = position
-        self.owner = owner
-        self.harvest = 1
-        self.attack = 3
-        self.dead = False
-        self.hasMoved = False
-        self.numAttackers = 0
-
-    @property
-    def type(self):
-        return self.__class__.__name__.lower()
-
-
-class Harvester(Unit):
-    def __init__(self, owner, position):
-        Unit.__init__(self, owner, position)
-        self.harvest = 2
-        self.attack = 2
-
-
-class Soldier(Unit):
-    def __init__(self, owner, position):
-        Unit.__init__(self, owner, position)
-        self.harvest = 0
-        self.attack = 5
-
-
-class Spawner(Unit):
-    def __init__(self, owner, position):
-        Unit.__init__(self, owner, position)
+    def get_neighbour_enemy_units(self, x, y, distance, player):
+        return [cell.unit for cell in filter(lambda c: c.unit is not None and c.unit.owner != player,
+                                             self.get_neighbour_cells(x, y, distance))]
 
 
 class Player(threading.Thread):
@@ -234,7 +243,7 @@ class Player(threading.Thread):
             for line in temp:
                 self.buffer = "\n".join(self.buffer.split("\n")[1:])
                 yield line.rstrip()
-        yield buffer.rstrip()
+        yield self.buffer.rstrip()
 
 
 class GameServer:
@@ -245,8 +254,8 @@ class GameServer:
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.bind(('', port))
         self.socket.listen(3)
-        self.display = Display(800, 800)
         self.loadmap(mapfile)
+        self.display = Display(800, 800, self.board.width, self.board.height)
 
     def start(self):
         print("Server started on port {}.".format(self._port))
@@ -255,18 +264,19 @@ class GameServer:
 
         self.display.init()
         while True:
+            self.display.clear()
+
             self.resolve_food_harvest()
             self.move_and_spawn_units()
+
+            self.display.draw_board(self.board)
+
             self.resolve_fights()
             self.destroy_spawners()
-
-            if random.randrange(0, 20) < 2:
+            if random.randrange(0, 20) < 20:
                 self.board.spawn_food()
 
             self.send_gamestate()
-
-            self.display.clear()
-            self.display.draw_board(self.board)
 
             # Ugly way to keep 30 fps while pretending to be 1 fps
             self.display.update(6)
@@ -323,8 +333,21 @@ class GameServer:
                     self.players[spawner.owner].food -= 1
 
     def resolve_fights(self):
-        # TODO: Implement resolvement of fights
-        pass
+        self.board.calculate_attack_strengths()
+        deadUnits = []
+        for unit in self.board.units:
+            x, y = unit.position
+            for enemy in self.board.get_neighbour_enemy_units(x, y, 5, unit.owner):
+                if unit.attackStrength <= enemy.attackStrength:
+                    unit.dead = True
+                    deadUnits.append(unit)
+                    self.display.draw_attack(enemy, unit)
+                    break
+
+        for unit in deadUnits:
+            x, y = unit.position
+            self.board[x][y].unit = None
+            self.board.units.remove(unit)
 
     def destroy_spawners(self):
         for spawner in filter(lambda s: not s.dead, self.board.spawners):
@@ -332,7 +355,6 @@ class GameServer:
             if self.board[x][y].unit is not None:
                 if self.board[x][y].unit.owner != spawner.owner:
                     spawner.dead = True
-        pass
 
     def resolve_food_harvest(self):
         removedCells = []
@@ -346,11 +368,13 @@ class GameServer:
                 harvest = cell.unit.harvest
                 foodcell.hasFood = False
                 removedCells.append(foodcell)
+                break
+
             if len(players) == 1:
                 self.players[players.pop()].food += harvest
+
         for cell in removedCells:
             self.board.foodcells.remove(cell)
-
 
     def loadmap(self, mapfile_path):
         with open(mapfile_path) as mapfile:
