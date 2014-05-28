@@ -22,6 +22,9 @@ class BoardCell:
         self.unit = None
         self.newUnit = None
 
+    def empty(self):
+        return not (self.isWall or self.spawner or self.hasFood or self.unit or self.newUnit)
+
 
 class GameBoard:
     def __init__(self, width, height):
@@ -52,8 +55,11 @@ class GameBoard:
         self.units.append(newUnit)
 
     def spawn_food(self):
-        # TODO: Add spawning food
-        pass
+        for x in range(10):
+            cell = random.choice(random.choice(self.board))
+            if cell.empty():
+                cell.hasFood = True
+                return True
 
     def move_unit(self, x, y, owner, direction):
         if self.board[x][y].unit is not None:
@@ -231,8 +237,7 @@ class GameServer:
             self.move_and_spawn_units()
             self.resolve_fights()
 
-            if random.randrange(0, 10) < 3:
-                self.board.spawn_food()
+            if random.randrange(0, 20) < 2:
                 self.board.spawn_food()
 
             self.display.clear()

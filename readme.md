@@ -3,7 +3,7 @@ A competition in creating Artificial intelligence based on the [Ants AI challeng
 
 ## How to run server
 The game server is written using Python 2.7 with PyGame, so make sure you have those installed.
-In order to run the server it is as simple as "python server.py simple.map -p 5050", where simple.map
+In order to run the server it is as simple as **python server.py simple.map -p 5050**, where simple.map
 is the map-file to be used and -p 5050 specifies which port the server will listen for incoming
 connections on.
 
@@ -32,9 +32,9 @@ implementation of majority-wins that allows for flanking. For more details read 
 
 ## Game specifications
 
-## Creating maps
-
 ## The protocol
+
+## Creating maps
 
 ## TODO:
 * Add animation
@@ -46,4 +46,6 @@ implementation of majority-wins that allows for flanking. For more details read 
 * Complete the readme-file
 * Complete the fight-resolvements
 * Complete food-gathering
-* Add food spawning
+* Send data to user
+    * Based on visibility
+

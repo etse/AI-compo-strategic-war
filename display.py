@@ -1,8 +1,8 @@
 from __future__ import print_function, division, unicode_literals
 
 WALLCOLOR = (50, 50, 50)
-PLAYERCOLORS = [(150, 0, 150), (255, 100, 0), (0, 255, 100), (255, 255, 0)]
-FOODCOLOR = (160, 82, 45)
+PLAYERCOLORS = [(150, 0, 150), (255, 150, 0), (0, 255, 100), (255, 255, 0)]
+FOODCOLOR = (140, 40, 40)
 
 import pygame
 from pygame.locals import *

@@ -28,6 +28,6 @@ for line in readline_from_socket(s):
         d = json.loads(line)
         if "status" in d:
             continue
-        s.sendall('{{ "mode": "standard", "moves": [(22, 22, "north")] }}\n')
+        s.sendall(json.dumps({"mode": "standard", "moves": [(x, 2, "east") for x in xrange(15)]})+"\n")
     except Exception, e:
         print("Error parsing:", line, e)
