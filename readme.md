@@ -92,6 +92,12 @@ When the client connects to the server the first thing it should do is register 
 server you are ready. This is done by sending the command following command:
 ```name [yourname]```. As allways, remember to end it with a newline.
 
+```
+Example:
+>>> name compoBot\n
+<<< {"status": "ok"}\n
+```
+
 ## Creating maps
 
 ## TODO:
