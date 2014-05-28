@@ -7,6 +7,9 @@ In order to run the server it is as simple as **python server.py simple.map -p 5
 is the map-file to be used and -p 5050 specifies which port the server will listen for incoming
 connections on.
 
+The included test-client is a simple client that sends random movement-commands each turn. This can
+be used as a starting point to see how to communicate with the server.
+
 ## Problem description
 The objective is to create an artificial intelligence that can play the specified game as strategic
 as possible. As the competition goes on bugs in the server might be fixed, and libraries for different
@@ -31,6 +34,31 @@ or flee. In situations where you end up fighting them the war-turns is resolved 
 implementation of majority-wins that allows for flanking. For more details read the game specifications.
 
 ## Game specifications
+The game consists of turns which are resolved in the following order:
+
+1. Harvest any nearby food
+2. Move units
+3. Spawn new units
+4. Resolve battles
+5. Destroy spawners
+6. Spawn new food
+
+Everything that happens in a specific event is considered to be done simultaneously - in fights this means
+that unit **A** can kill unit **B** simultaneously as unit **B** kills unit **A**, resulting in both units
+dead.
+
+Using the order of execution we can also see that each turn we can move a nearby unit on top of a spawner
+to block it from spawning new units.
+
+### Movement
+
+### Harvesting food
+
+### Spawning of new units
+
+### Battle resolvement
+
+### Destroying spawners
 
 ## The protocol
 
@@ -45,7 +73,6 @@ implementation of majority-wins that allows for flanking. For more details read 
 * Create python library
 * Complete the readme-file
 * Complete the fight-resolvements
-* Complete food-gathering
 * Send data to user
     * Based on visibility
 

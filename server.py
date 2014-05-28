@@ -1,6 +1,6 @@
 from __future__ import print_function, division, unicode_literals
 
-__author__ = 'Steffen'
+__author__ = 'Steffen Hageland'
 
 import socket
 import threading
@@ -8,6 +8,7 @@ import time
 import json
 import pygame
 import random
+import math
 from argparse import ArgumentParser
 from display import Display
 from functools import partial
@@ -15,12 +16,14 @@ from copy import copy
 
 
 class BoardCell:
-    def __init__(self):
+    def __init__(self, x, y):
         self.isWall = False
         self.spawner = None
         self.hasFood = False
         self.unit = None
         self.newUnit = None
+        self.x = x
+        self.y = y
 
     def empty(self):
         return not (self.isWall or self.spawner or self.hasFood or self.unit or self.newUnit)
@@ -30,10 +33,11 @@ class GameBoard:
     def __init__(self, width, height):
         self.width = width
         self.height = height
-        self.board = [[BoardCell() for _ in xrange(height)] for _ in xrange(width)]
+        self.board = [[BoardCell(x, y) for y in xrange(height)] for x in xrange(width)]
         self.spawners = []
         self.units = []
-        self.food = []
+        self.foodcells = []
+        self._offsetcache = {}
 
     def __getitem__(self, item):
         return self.board[item]
@@ -58,6 +62,7 @@ class GameBoard:
         for x in range(10):
             cell = random.choice(random.choice(self.board))
             if cell.empty():
+                self.foodcells.append(cell)
                 cell.hasFood = True
                 return True
 
@@ -74,7 +79,7 @@ class GameBoard:
                 elif direction == "east":
                     newX = (x+1) % self.width
 
-                if not self.board[newX][newY].isWall:
+                if not (self.board[newX][newY].isWall or self.board[newX][newY].hasFood):
                     self.board[x][y].unit.hasMoved = True
                     if self.board[newX][newY].newUnit is not None:
                         # Someone else has moved here, kill the unit and do not move
@@ -116,6 +121,20 @@ class GameBoard:
                     cell.unit = cell.newUnit
                     cell.newUnit = None
                     cell.unit.hasMoved = False
+
+    def get_offsets(self, distance):
+        if distance not in self._offsetcache:
+            offsets = []
+            radius = int(math.sqrt(distance))
+            for x in xrange(-radius, radius+1):
+                for y in xrange(-radius, radius+1):
+                    if 0 < x**2 + y**2 <= distance:
+                        offsets.append((x, y))
+            self._offsetcache[distance] = offsets
+        return self._offsetcache[distance]
+
+    def get_neighbour_cells(self, x, y, distance):
+        return [self.board[(x+dx) % self.width][(y+dy) % self.height] for dx, dy in self.get_offsets(distance)]
 
 
 class Unit:
@@ -223,7 +242,7 @@ class GameServer:
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.bind(('', port))
         self.socket.listen(3)
-        self.display = Display(640, 640)
+        self.display = Display(800, 800)
         self.loadmap(mapfile)
 
     def start(self):
@@ -236,20 +255,22 @@ class GameServer:
             self.resolve_food_harvest()
             self.move_and_spawn_units()
             self.resolve_fights()
+            self.destroy_spawners()
 
             if random.randrange(0, 20) < 2:
                 self.board.spawn_food()
+
+            self.send_gamestate()
 
             self.display.clear()
             self.display.draw_board(self.board)
 
             # Ugly way to keep 30 fps while pretending to be 1 fps
-            for _ in range(6):
-                self.display.update(30)
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        print("Game terminated by host.")
-                        return True
+            self.display.update(6)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    print("Game terminated by host.")
+                    return True
 
     def wait_for_players(self):
         print("Waiting for {} players to connect...".format(self.numPlayers))
@@ -302,9 +323,27 @@ class GameServer:
         # TODO: Implement resolvement of fights
         pass
 
-    def resolve_food_harvest(self):
-        # TODO: How to resolve gathering food?
+    def destroy_spawners(self):
+        # TODO: Destroy spawners with enemies on top of them.
         pass
+
+    def resolve_food_harvest(self):
+        removedCells = []
+        for foodcell in self.board.foodcells:
+            players = set()
+            harvest = 0
+            neighbourCells = self.board.get_neighbour_cells(foodcell.x, foodcell.y, 1)
+
+            for cell in filter(lambda c: c.unit is not None, neighbourCells):
+                players.add(cell.unit.owner)
+                harvest = cell.unit.harvest
+                foodcell.hasFood = False
+                removedCells.append(foodcell)
+            if len(players) == 1:
+                self.players[players.pop()].food += harvest
+        for cell in removedCells:
+            self.board.foodcells.remove(cell)
+
 
     def loadmap(self, mapfile_path):
         with open(mapfile_path) as mapfile:
@@ -319,6 +358,12 @@ class GameServer:
                         self.board.add_wall(x, y)
                     if line[x].isdigit():
                         self.board.add_spawner(x, y, int(line[x]))
+
+    def send_gamestate(self):
+        # TODO: send gamestate to all players
+        state = {"test": "lol"}
+        for player in self.players:
+            player.send_gamestate(state)
 
 
 def readCommandlineArguments():
