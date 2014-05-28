@@ -22,6 +22,7 @@ units work together - and a strategic tips: like in most RTS-games establishing 
 the easiest way to win.
 
 The 2 main concepts of the game are:
+
 1. Collect food to spawn new units.
 2. Hunt down and destroy enemy spawners.
 
