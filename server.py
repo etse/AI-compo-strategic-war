@@ -102,7 +102,7 @@ class GameBoard:
 
     def move_unit(self, x, y, owner, direction):
         if self.board[x][y].unit is not None:
-            if self.board[x][y].unit.owner == owner and not self.board[x][y].unit.hasMoved:
+            if self.board[x][y].unit.owner == owner:
                 newX, newY = x, y
                 if direction == "north":
                     newY = (y-1) % self.height
@@ -118,8 +118,8 @@ class GameBoard:
                     if self.board[newX][newY].newUnit is not None:
                         # Someone else has moved here, kill the unit and do not move
                         self.board[newX][newY].newUnit.dead = True
-                        self.board[x][y].unit.dead = True
                         self.units.remove(self.board[x][y].unit)
+                        self.board[x][y].unit = None
                     else:
                         # Lets move the unit
                         self.board[newX][newY].newUnit = self.board[x][y].unit
@@ -135,7 +135,8 @@ class GameBoard:
                 deadUnits.append(unit)
                 x, y = unit.position
                 self.board[x][y].newUnit = None
-        self.units = [unit for unit in self.units if unit not in deadUnits]
+                self.board[x][y].unit = None
+        self.units = filter(lambda unit: unit not in deadUnits, self.units)
 
         # To resolve the move, units need to be moved from .newUnit to .unit
         # This might cause a conflict if the old unit stood still - in that case
@@ -143,17 +144,17 @@ class GameBoard:
         for column in self.board:
             for cell in column:
                 if cell.newUnit is not None and cell.unit is not None:
-                    try:
+                    if cell.newUnit in self.units:
                         self.units.remove(cell.newUnit)
+                    if cell.unit in self.units:
                         self.units.remove(cell.unit)
-                    except ValueError:
-                        pass
 
                     cell.newUnit = None
                     cell.unit = None
                 if cell.newUnit is not None:
                     cell.unit = cell.newUnit
                     cell.newUnit = None
+                if cell.unit is not None:
                     cell.unit.hasMoved = False
 
     def calculate_attack_strengths(self):
@@ -273,13 +274,13 @@ class GameServer:
 
             self.resolve_fights()
             self.destroy_spawners()
-            if random.randrange(0, 20) < 20:
+            if random.randrange(0, 100) < 100:
                 self.board.spawn_food()
 
             self.send_gamestate()
 
             # Ugly way to keep 30 fps while pretending to be 1 fps
-            self.display.update(6)
+            self.display.update(4)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     print("Game terminated by host.")

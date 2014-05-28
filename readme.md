@@ -89,7 +89,6 @@ of collecting any food. This unit has a horizontal line through its body.
 * Add animation
     * Movement
     * Death-animation
-    * Shooting
 * Create python library
 * Complete the readme-file
 
