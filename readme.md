@@ -194,7 +194,9 @@ Example:
 
 ### Sending commands to the server
 The commands sent to the server should be in JSON of the following formatting:
-``` {"mode": spawn_mode, "moves": [[x, y, direction], [x, y, direction] ...]}\n ```
+```
+{"mode": spawn_mode, "moves": [[x, y, direction], [x, y, direction] ...]}\n
+```
 Mode refers to which mode you want the spawners to be in. This can be set to *standard*, *soldier* or
 *harvester*. All units spawned this turn will be of the specified type.
 
@@ -212,11 +214,13 @@ of it. To remember to save the location if you move your units away. (Additional
 spawner outside of vision you have no way of knowing if it has been destroyed.
 
 Additionally it will include your player-id and the total size of the map.
-``` {"map_size": [10, 10], "player_id": 0, "map": [...]}\n ```
+```
+{"map_size": [10, 10], "player_id": 0, "map": [...]}\n
+```
 *map_size* is the width and height of the current map, and *player_id* is your ID in the game. This is used
 to be able to distinguish your units from enemy units on the map.
 
-*map* is a list of all cells currently visible by one of your units. Each cell has the following format:
+*map* is a list of all cells currently visible by one of your units. Each cell has the format shown below
 ```
 With a spawner and unit:
 {"position": [x, y], "is_wall": False, "spawner": {"owner": 0, "destroyed": False}, "unit": {"owner": 0, "type": "standard"}, "has_food": False }
