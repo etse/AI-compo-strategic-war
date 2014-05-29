@@ -71,8 +71,20 @@ Attack ranges for unit A:
 ```
 
 ### Movement
+Movement in the game can be done in one of four different directions: north, south, east and west.
+Each unit can only move 1 tile each turn and is not allowed to move into any block currently containing
+either food or a wall.
+
+If 2 or more units move into the same tile they will automatically end up in a big fist-fight. The result
+will end with all of them getting killed and removed from the game.
 
 ### Harvesting food
+In order to harvest food all you have to do is to make sure you have a unit (not a soldier) right
+next to in (technically within a range of 1). By doing this you will automatically collect the food
+and receive the bonus if it was harvested by a harvester.
+
+If both you and an enemy is standing next to the same block of food you will both try to grab it, which
+will result in it breaking and neither getting any food.
 
 ### Spawning of new units
 In order to spawn new units the following three criteria must be met:
@@ -149,6 +161,11 @@ AAAAAAAAA    013565310    AAxxxxxAA
     In turn, it participates in the death of the 3 center A ants.
 * The A ants on the end live because they are only attacked by 1 B ant which is much more occupied.
 
+In our examples we have only used simple scenarioes with units with same attach-strength, but the idea
+is pretty much the same even with different kinds of units. For instance a soldier with his strength of
+5 kill kill a standard unit with an attack of 3, but if 2 standard units join up they will get a combined
+strength of 6 and be able to kill a soldier without any casualties.
+
 ### Destroying spawners
 Destroying an enemy spawner will restrict it from spawning any more units throughout the game. This is
 a very good way to establish map-control and restrict possible attack vectors from you enemy. To do this
@@ -176,7 +193,17 @@ Example:
 ```
 
 ### Sending commands to the server
-How to send commands
+The commands sent to the server should be in JSON of the following formatting:
+``` {"mode": spawn_mode, "moves": [[x, y, direction], [x, y, direction] ...]}\n ```
+Mode refers to which mode you want the spawners to be in. This can be set to *standard*, *soldier* or
+*harvester*. All units spawned this turn will be of the specified type.
+
+Moved should be a list of all moved you want to do this turn. X and Y refers to the coordinates
+of the unit you want to move while direction is in which direction that unit will be moved. (This should
+be a string with the value *north*, *south*, *west* or *east*.
+
+If you try to move the same unit twice, or try to move an unit you do not own, the specific move is
+ignored by the server - while the others are executed as normal.
 
 ### States recieved by the server
 Each turn the game will send you the current state of the game, from your perspective. This means that it
@@ -185,6 +212,18 @@ of it. To remember to save the location if you move your units away. (Additional
 spawner outside of vision you have no way of knowing if it has been destroyed.
 
 Additionally it will include your player-id and the total size of the map.
+``` {"map_size": [10, 10], "player_id": 0, "map": [...]}\n ```
+*map_size* is the width and height of the current map, and *player_id* is your ID in the game. This is used
+to be able to distinguish your units from enemy units on the map.
+
+*map* is a list of all cells currently visible by one of your units. Each cell has the following format:
+```
+With a spawner and unit:
+{"position": [x, y], "is_wall": False, "spawner": {"owner": 0, "destroyed": False}, "unit": {"owner": 0, "type": "standard"}, "has_food": False }
+
+No unit and no spawner, but is a wall:
+ {"position": [x, y], "is_wall": True, "spawner": null, "unit": null, "has_food": False }
+```
 
 ## Getting started
 Some good starting tips is to start by trying to implement the following features:
@@ -200,12 +239,8 @@ more advanced tactics and strategies.
 Will write this later. For now: just use the standard map, or create one by using it as example.
 
 ## TODO:
-* Send data to user
-    * Based on visibility
-
-* Add animation
+* Add animations
     * Movement
     * Death-animation
 * Create python library
-* Complete the readme-file
 

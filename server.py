@@ -372,7 +372,8 @@ class GameServer:
 
             for cell in filter(lambda c: c.unit is not None and c.unit.type != "soldier", neighbourCells):
                 players.add(cell.unit.owner)
-                harvest = cell.unit.harvest
+                if cell.unit.harvest > harvest:
+                    harvest = cell.unit.harvest
                 foodcell.hasFood = False
                 removedCells.append(foodcell)
                 break
