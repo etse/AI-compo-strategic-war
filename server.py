@@ -286,7 +286,7 @@ class GameServer:
 
             self.send_gamestate()
 
-            self.display.update(5)
+            self.display.update(6)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     print("Game terminated by host.")
