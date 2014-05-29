@@ -111,14 +111,16 @@ for unit on board:
         unit.dead = True
 ```
 
-Lets take an example, with Alice and Bob. They are currently only using normal units with an attack
-of 2. They got their units in following confrontation;
+Lets take an example, with Alice and Bob. For the sake of simplicity lets consider that they are
+both using a simple unit with 1 in attack.
+
+They got their units in following confrontation;
 ```
 .b.
 ...
 .a.
 ```
-In this setup both Bob and Alice will get attacked by a strength of 2. This means both their units die.
+In this setup both Bob and Alice will get attacked by a strength of 1. This means both their units die.
 
 Now look at an example of a wall of 5 units against another wall of 5 units:
 ```
@@ -128,12 +130,30 @@ Now look at an example of a wall of 5 units against another wall of 5 units:
 ```
 Now lets calculate the attack-values on all of the units:
 ```
-..466664..
+..233332..
 ..........
-..466664..
+..233332..
 ```
+Again, everyone dies. Even though a few units have lower attack-strength, every unit has at least
+1 unit inside his attack-radius which has lower or equal strength. For the ones that got a score of 2
+the other unit with 2 standing straight in front of him will kill him.
+
+Now let us take a look at a big wall-push. A good way to push into enemy-ranks if you manage to flank
+them. In this case A is flanking B with a big wall-punch
+```
+AAAAAAAAA    013565310    AAxxxxxAA
+...BBB... -> ...555... -> ...xxx...
+...BBB...    ...333...    ...xBx...
+```
+* The B ant lives because it is only attacked by the 3 center A ants, and each of those ants are more occupied.
+    In turn, it participates in the death of the 3 center A ants.
+* The A ants on the end live because they are only attacked by 1 B ant which is much more occupied.
 
 ### Destroying spawners
+Destroying an enemy spawner will restrict it from spawning any more units throughout the game. This is
+a very good way to establish map-control and restrict possible attack vectors from you enemy. To do this
+all you have to do is move one of your units on top of the spawner and make sure it survives to the end
+of turn.
 
 ## The protocol
 Each command sent between client and server shall always be 1 line, and **must** end with a linux-style
