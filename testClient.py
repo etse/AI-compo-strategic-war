@@ -34,4 +34,4 @@ for line in readline_from_socket(s):
             continue
         s.sendall(json.dumps(get_random_command())+"\n")
     except Exception, e:
-        print("Error parsing:", line, e)
+        print("Error parsing:", e)
