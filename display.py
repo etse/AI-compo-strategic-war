@@ -20,6 +20,7 @@ class Display:
     def init(self):
         pygame.init()
         self.clock = pygame.time.Clock()
+        pygame.display.set_caption("Strategic war")
         self.screen = pygame.display.set_mode((self.width, self.height))
 
     def clear(self):

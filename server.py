@@ -9,6 +9,7 @@ import json
 import pygame
 import random
 import math
+import os
 from argparse import ArgumentParser
 from display import Display
 from functools import partial
@@ -255,7 +256,7 @@ class Player(threading.Thread):
 
 
 class GameServer:
-    def __init__(self, port, mapfile):
+    def __init__(self, port, mapfile, w, h):
         self._port = port
         self.players = []
         self.numPlayers = 2
@@ -263,7 +264,7 @@ class GameServer:
         self.socket.bind(('', port))
         self.socket.listen(3)
         self.loadmap(mapfile)
-        self.display = Display(800, 800, self.board.width, self.board.height)
+        self.display = Display(w, h, self.board.width, self.board.height)
 
     def start(self):
         print("Server started on port {}.".format(self._port))
@@ -413,14 +414,27 @@ class GameServer:
 
 
 def readCommandlineArguments():
-    parser = ArgumentParser(description="Runs a simple server for the compo")
+    parser = ArgumentParser(description="Runs a simple server for the compo.")
     parser.add_argument("mapfile", help="The map to be used for the game.")
     parser.add_argument('-p', '--port', type=int, help='The port to listen for incoming connections.', default=5050)
+    parser.add_argument("--force-onscreen", type=bool, help="Try to force the windows to spawn on screen.", default=False)
+    parser.add_argument("-r", "--resolution", help="Resoltuion given in the format x,y.", default="800,800")
     return vars(parser.parse_args())
 
 
 if __name__ == '__main__':
     random.seed(42)
     args = readCommandlineArguments()
-    server = GameServer(args['port'], args['mapfile'])
-    server.start()
+
+    if args["force_onscreen"]:
+        os.environ['SDL_VIDEO_WINDOW_POS'] = "50,50"
+
+    try:
+        res = args["resolution"].split(",")
+        w, h = int(res[0]), int(res[1])
+    except IndexError, ValueError:
+        print("Invalid argument given as resolution.")
+    else:
+        server = GameServer(args['port'], args['mapfile'], w, h)
+        server.start()
+
