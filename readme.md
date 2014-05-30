@@ -210,8 +210,16 @@ ignored by the server - while the others are executed as normal.
 ### States recieved by the server
 Each turn the game will send you the current state of the game, from your perspective. This means that it
 will only send you data visible by any of your units. Keep in mind that the server will not send you information about your own spawners unless you have visibility
-of it. To remember to save the location if you move your units away. (Additionally: if you leave your
-spawner outside of vision you have no way of knowing if it has been destroyed.
+of it. To remember to save the location if you move your units away. (if you leave your
+spawner outside of vision you have no way of knowing if it has been destroyed).
+
+In order to save some network-traffic (and to lower the amount of JSON that has to be parsed by
+clients - and cell that is empty, and in vision range, will not be sent. It is up to the client
+to understand that this implicitly means that the cell is empty.
+
+Any information about what a cell isn't is left out. That means there will not be any information
+telling you that a cell is **not** a well, instead the client can assume that a cell is not a wall
+unless stated otherwise. 
 
 Additionally it will include your player-id and the total size of the map.
 ```
@@ -223,11 +231,15 @@ to be able to distinguish your units from enemy units on the map.
 *map* is a list of all cells currently visible by one of your units. Each cell has the format shown below
 ```
 With a spawner and unit:
-{"position": [x, y], "is_wall": False, "spawner": {"owner": 0, "destroyed": False}, "unit": {"owner": 0, "type": "standard"}, "has_food": False }
+{"position": [x, y], "spawner": {"owner": 0, "destroyed": False}, "unit": {"owner": 0, "type": "standard"}}
 
 No unit and no spawner, but is a wall:
- {"position": [x, y], "is_wall": True, "spawner": null, "unit": null, "has_food": False }
+ {"position": [x, y], "is_wall": True}
+
+A cell that has food:
+ {"position": [x, y], "has_food": True}
 ```
+
 
 ## Getting started
 Some good starting tips is to start by trying to implement the following features:

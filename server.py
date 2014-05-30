@@ -61,7 +61,11 @@ class BoardCell:
         self.y = y
 
     def as_dict(self):
-        d = {"position": (self.x, self.y), "is_wall": self.isWall, "spawner": None, "unit": None, "has_food": self.hasFood}
+        d = {"position": (self.x, self.y)}
+        if self.isWall:
+            d["is_wall"] = True
+        if self.hasFood:
+            d["has_food"] = True
         if self.spawner:
             d["spawner"] = {"owner": self.spawner.owner, "destroyed": self.spawner.dead}
         if self.unit:
@@ -407,7 +411,7 @@ class GameServer:
             for unit in units:
                 x, y = unit.position
                 cells.add(self.board[x][y])
-                cells |= set(self.board.get_neighbour_cells(x, y, 55))
+                cells |= set(filter(lambda cell: not cell.empty(), self.board.get_neighbour_cells(x, y, 55)))
             state["map"] = [cell.as_dict() for cell in cells]
             player.send_gamestate(state)
 
