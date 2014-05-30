@@ -218,7 +218,7 @@ clients - and cell that is empty, and in vision range, will not be sent. It is u
 to understand that this implicitly means that the cell is empty.
 
 Any information about what a cell isn't is left out. That means there will not be any information
-telling you that a cell is **not** a well, instead the client can assume that a cell is not a wall
+telling you that a cell is **not** a wall, instead the client can assume that a cell is not a wall
 unless stated otherwise. 
 
 Additionally it will include your player-id and the total size of the map.
