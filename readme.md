@@ -258,7 +258,7 @@ following format: ``` width height numberOfPlayers ```
 The rest of the map will be an ASCII-art representing the layout of the map, using the following
 symbols:
 
-* **#:## A wall in the game.
+* **#:** A wall in the game.
 * **.:** An empty cell.
 * **0-9:** A number represents a spawner owned by the player with specified ID. 
 
