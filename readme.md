@@ -100,7 +100,7 @@ your own units on top of it.
 There are three different types of units that can be spawned, chosen by the player.
 
 1. **Standard:** This is the most basic unit. This unit can collect food and has an attack-strength
-of 4. Identified by a a circle on the map.
+of 3. Identified by a a circle on the map.
 2. **Harvester:** This unit will get double value for each food collected, but has weaker attack with
 a strength of 2. This unit has a vertical line through it
 3. **Soldier:** This unit is a pure fighting unit with an attack-strength of 5, but he is incapable
