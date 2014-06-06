@@ -52,7 +52,7 @@ to block it from spawning new units.
 
 In this game *distance* between objects is important, and for combat-range and viewdistance it is important
 that both the client and server handles it the same way if you are to expect your bot to behave correctly.
-Distances are measured as *squered-distance*.
+Distances are measured as *squared-distance*.
 
 Eample: Lets say we have a unit A on position (2, 5) and a unit B on position (4, 3). To calculate the
 distance between them we would do: ```(4-2)*(4-2) + (3-5)*(3-5) = 8```. As vision-range is set to
