@@ -55,9 +55,11 @@ that both the client and server handles it the same way if you are to expect you
 Distances are measured as *squared-distance*.
 
 Eample: Lets say we have a unit A on position (2, 5) and a unit B on position (4, 3). To calculate the
-distance between them we would do: ```(4-2)*(4-2) + (3-5)*(3-5) = 8```. As vision-range is set to
-55 this means that the units are able to see each other. But with an attack-range of 5 they are not
-able to fight.
+distance between them we would do: ```(4-2)*(4-2) + (3-5)*(3-5) = 8```. This is similar to normal distance
+calculations (that uses pythagoras), but requires less calculations.
+ 
+With a  vision-range is set to 55 this means that the units are able to see each other. But with an
+attack-range of 5 they are not able to fight.
 
 ```
 Attack ranges for unit A:
