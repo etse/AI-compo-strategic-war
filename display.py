@@ -1,7 +1,12 @@
 from __future__ import print_function, division, unicode_literals
 
 WALLCOLOR = (50, 50, 50)
-PLAYERCOLORS = [(150, 0, 150), (255, 150, 0), (0, 255, 100), (255, 255, 0)]
+
+PLAYERCOLORS = [(255, 255, 255), (255, 50, 150), (150, 50, 255), (255, 255, 0)]
+PLAYERCOLORS += [(255, 0, 255), (255, 125, 0), (0, 25, 255)]
+PLAYERCOLORS += [(0, 0, 255), (255, 0, 0), (150, 150, 0)]
+
+print(PLAYERCOLORS)
 FOODCOLOR = (140, 40, 40)
 LAZERCOLOR = (0, 255, 0)
 
