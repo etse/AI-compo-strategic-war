@@ -282,7 +282,7 @@ class GameServer:
             self.resolve_food_harvest()
             self.move_and_spawn_units()
 
-            self.display.draw_board(self.board)
+            self.display.draw_board(self.board, self.players)
 
             self.resolve_fights()
             self.destroy_spawners()

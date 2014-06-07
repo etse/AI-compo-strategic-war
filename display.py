@@ -10,7 +10,6 @@ FOODCOLOR = (140, 40, 40)
 LAZERCOLOR = (0, 255, 0)
 
 import pygame
-from pygame.locals import *
 
 class Display:
     def __init__(self, width, height, board_width, board_height):
@@ -26,6 +25,7 @@ class Display:
         self.clock = pygame.time.Clock()
         pygame.display.set_caption("Strategic war")
         self.screen = pygame.display.set_mode((self.width, self.height))
+        self.font = pygame.font.SysFont("verdana", 11)
 
     def clear(self):
         self.screen.fill((0, 0, 0))
@@ -34,7 +34,7 @@ class Display:
         pygame.display.flip()
         self.clock.tick(fps)
 
-    def draw_board(self, board):
+    def draw_board(self, board, players):
         h, w = self.cell_h, self.cell_w
 
         for x in xrange(board.width):
@@ -63,6 +63,10 @@ class Display:
                 start = (px-int(w/2), py-1)
                 end = (px+int(w/2), py-1)
                 pygame.draw.line(self.screen, (0, 0, 0), start, end, 2)
+
+        for index, player in enumerate(players):
+            label = self.font.render(player.name, 1, PLAYERCOLORS[index])
+            self.screen.blit(label, (15, 12+15*index))
 
     def draw_attack(self, attacker, defender):
         x1 = int(attacker.position[0]*self.cell_w+self.cell_w/2)
