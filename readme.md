@@ -9,7 +9,7 @@ connections on.
 
 You can change the round time by using the -f argument, this will change the number of frames per
 second the game will run on - and each frame represents 1 round in the game. A higher number means
-short time between rounds.
+short time between rounds. (Default is 4 rounds per second, giving clients 25ms thinking time).
 
 The included test-client is a simple client that sends random movement-commands each turn. This can
 be used as a starting point to see how to communicate with the server.
