@@ -260,7 +260,7 @@ class Player(threading.Thread):
 
 
 class GameServer:
-    def __init__(self, port, mapfile, w, h):
+    def __init__(self, port, mapfile, rounds_per_second, w, h):
         self._port = port
         self.players = []
         self.numPlayers = 2
@@ -269,6 +269,7 @@ class GameServer:
         self.socket.listen(3)
         self.loadmap(mapfile)
         self.display = Display(w, h, self.board.width, self.board.height)
+        self.rounds_per_second = rounds_per_second
 
     def start(self):
         print("Server started on port {}.".format(self._port))
@@ -291,7 +292,7 @@ class GameServer:
 
             self.send_gamestate()
 
-            self.display.update(6)
+            self.display.update(self.rounds_per_second)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     print("Game terminated by host.")
@@ -423,6 +424,8 @@ def readCommandlineArguments():
     parser.add_argument('-p', '--port', type=int, help='The port to listen for incoming connections.', default=5050)
     parser.add_argument("--force-onscreen", type=bool, help="Try to force the windows to spawn on screen.", default=False)
     parser.add_argument("-r", "--resolution", help="Resoltuion given in the format x,y.", default="800,800")
+    parser.add_argument("-f", "--fps", type=int,
+                        help="The update frequency of the game. Each frame is 1 round in the game.", default=4)
     return vars(parser.parse_args())
 
 
@@ -439,6 +442,6 @@ if __name__ == '__main__':
     except IndexError, ValueError:
         print("Invalid argument given as resolution.")
     else:
-        server = GameServer(args['port'], args['mapfile'], w, h)
+        server = GameServer(args['port'], args['mapfile'], args["fps"], w, h)
         server.start()
 

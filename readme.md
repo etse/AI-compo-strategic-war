@@ -7,6 +7,10 @@ In order to run the server it is as simple as **python server.py simple.map -p 5
 is the map-file to be used and -p 5050 specifies which port the server will listen for incoming
 connections on.
 
+You can change the round time by using the -f argument, this will change the number of frames per
+second the game will run on - and each frame represents 1 round in the game. A higher number means
+short time between rounds.
+
 The included test-client is a simple client that sends random movement-commands each turn. This can
 be used as a starting point to see how to communicate with the server.
 
