@@ -208,7 +208,7 @@ Mode refers to which mode you want the spawners to be in. This can be set to *st
 
 Moved should be a list of all moved you want to do this turn. X and Y refers to the coordinates
 of the unit you want to move while direction is in which direction that unit will be moved. (This should
-be a string with the value *north*, *south*, *west* or *east*.
+be a string with the value *north*, *south*, *west* or *east*, as string.
 
 If you try to move the same unit twice, or try to move an unit you do not own, the specific move is
 ignored by the server - while the others are executed as normal.

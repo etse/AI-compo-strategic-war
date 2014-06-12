@@ -328,11 +328,12 @@ class GameServer:
                 player.mode = Soldier
 
             # move all the units he sent a command for
-            for x, y, direction in player.latest_command.get("moves", []):
+            for move in player.latest_command.get("moves", []):
                 try:
+                    x, y, direction = move
                     self.board.move_unit(x, y, playerNum, direction)
-                except IndexError:
-                    print("{} sent an invalid move-command: {}, {}, {}".format(player.name, x, y, direction))
+                except (IndexError, ValueError), e:
+                    print("{} sent an invalid move-command: '{}' Exception: {}".format(player.name, move, e.message))
             player.latest_command = {}
         self.board.resolve_moves()
 
