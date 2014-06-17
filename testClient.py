@@ -27,6 +27,8 @@ name = "tester{}".format(random.randint(0, 1000))
 s.sendall("name {}\n".format(name))
 
 random.seed(42)
+s.sendall(json.dumps(get_random_command())+"\n")
+
 for line in readline_from_socket(s):
     try:
         d = json.loads(line)
