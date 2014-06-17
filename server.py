@@ -100,8 +100,8 @@ class GameBoard:
         self.board[x][y].spawner = spawner
         self.spawners.append(spawner)
 
-    def add_unit(self, x, y, owner):
-        newUnit = Unit(owner, (x, y))
+    def add_unit(self, x, y, unit, owner):
+        newUnit = unit(owner, (x, y))
         self.board[x][y].unit = newUnit
         self.units.append(newUnit)
 
@@ -341,10 +341,11 @@ class GameServer:
         spawners = copy(self.board.spawners)
         random.shuffle(spawners)
         for spawner in filter(lambda s: not s.dead, spawners):
-            if self.players[spawner.owner].food > 0:
+            owner = self.players[spawner.owner]
+            if owner.food > 0:
                 if not self.board.any_units_on_position(spawner.position):
-                    self.board.add_unit(spawner.position[0], spawner.position[1], spawner.owner)
-                    self.players[spawner.owner].food -= 1
+                    self.board.add_unit(spawner.position[0], spawner.position[1],  owner.mode, spawner.owner)
+                    owner.food -= 1
 
     def resolve_fights(self):
         self.board.calculate_attack_strengths()

@@ -18,7 +18,7 @@ def readline_from_socket(socket):
 
 def get_random_command():
     moves = [(x, y, random.choice(["north", "east", "west", "south"])) for x in xrange(85) for y in xrange(85)]
-    return {"mode": "standard", "moves": moves}
+    return {"mode": random.choice(["standard", "harvester", "soldier"]), "moves": moves}
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
