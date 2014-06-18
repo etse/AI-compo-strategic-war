@@ -3,7 +3,7 @@ A competition in creating Artificial intelligence based on the [Ants AI challeng
 
 ## How to run server
 The game server is written using Python 2.7 with PyGame, so make sure you have those installed.
-In order to run the server it is as simple as **python server.py simple.map -p 5050**, where simple.map
+In order to run the server it is as simple as **python server.py maps/simple.map -p 5050**, where simple.map
 is the map-file to be used and -p 5050 specifies which port the server will listen for incoming
 connections on.
 
@@ -214,7 +214,7 @@ If you try to move the same unit twice, or try to move an unit you do not own, t
 ignored by the server - while the others are executed as normal.
 
 A schema for the commands to send to the servercan be found in 
-[client_to_server_schema.json](client_to_server_schema.json).
+[client_to_server.json](schemas/client_to_server.json).
 
 ### States recieved by the server
 Each turn the game will send you the current state of the game, from your perspective. This means that it
@@ -250,7 +250,7 @@ A cell that has food:
 ```
 
 A schema for the commands sent by the server can be found in
-[server_to_client_schema.json](server_to_client_schema.json).
+[server_to_client.json](schemas/server_to_client.json).
 
 ## Getting started
 Some good starting tips is to start by trying to implement the following features:
