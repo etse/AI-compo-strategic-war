@@ -1,0 +1,35 @@
+{
+    "type": "object",
+    "properties": {
+        "mode": {
+            "type": "string",
+            "required": false,
+            "default": "standard",
+            "enum": ["standard", "harvester", "soldier"]
+        },
+
+        "moves": {
+            "type": "array",
+            "required": false,
+            "items": {
+                "type": "array",
+                "minItems": 3,
+                "items": [
+                    {
+                        "title": "x coordinate",
+                        "type": "integer"
+                    },
+                    {
+                        "title": "y coordinate",
+                        "type": "integer"
+                    },
+                    {
+                        "title": "direction",
+                        "type": "string",
+                        "enum": ["north", "south", "west", "east"]
+                    }
+                ]
+            }
+        }
+    }
+}
