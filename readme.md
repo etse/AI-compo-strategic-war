@@ -213,6 +213,9 @@ be a string with the value *north*, *south*, *west* or *east*, as string.
 If you try to move the same unit twice, or try to move an unit you do not own, the specific move is
 ignored by the server - while the others are executed as normal.
 
+A schema for the commands to send to the servercan be found in 
+[client_to_server_schema.json](client_to_server_schema.json).
+
 ### States recieved by the server
 Each turn the game will send you the current state of the game, from your perspective. This means that it
 will only send you data visible by any of your units. Keep in mind that the server will not send you information about your own spawners unless you have visibility
@@ -246,6 +249,8 @@ A cell that has food:
  {"position": [x, y], "has_food": True}
 ```
 
+A schema for the commands sent by the server can be found in
+[server_to_client_schema.json](server_to_client_schema.json).
 
 ## Getting started
 Some good starting tips is to start by trying to implement the following features:
