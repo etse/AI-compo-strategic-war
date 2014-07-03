@@ -104,10 +104,10 @@ class GameAI:
                     self.display.init()
 
                 self.board.update(data["map"])
-                self.resolve_round()
                 self.display.clear()
                 self.display.draw_board(self.board, self.players)
                 self.display.update(fps=0)
+                self.resolve_round()
 
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:

@@ -26,7 +26,7 @@ for line in readline_from_socket(s):
             display = Display(600, 600, board.width, board.height)
             display.init()
 
-        board.update(board, data["map"])
+        board.update(data["map"])
         display.clear()
         display.draw_board(board, players)
         display.update(fps=0)

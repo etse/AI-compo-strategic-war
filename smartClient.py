@@ -17,3 +17,7 @@ class SmartAI(GameAI):
                 command["moves"].append([x, y, direction])
                 self.board.move_unit(x, y, direction)
         self.send_command(command)
+
+if __name__ == '__main__':
+    ai = SmartAI("SmartAI"+str(random.randint(0, 10)))
+    ai.start("127.0.0.1", 5050)
