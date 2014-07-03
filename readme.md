@@ -282,7 +282,7 @@ will be feeded everything that happens each turn. (the whole map-state and the c
 executed).
 
 For information about the protocol take a look the the
-[server_to_observer.json](schemas/server_to_observers.json) file.
+[server_to_observer.json](schemas/server_to_observer.json) file.
 
 ## TODO:
 * Add animations
