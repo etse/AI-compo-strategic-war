@@ -13,6 +13,7 @@ import os
 from argparse import ArgumentParser
 from display import Display
 from functools import partial
+from itertools import chain
 from copy import copy
 
 
@@ -199,11 +200,13 @@ class Player(threading.Thread):
         threading.Thread.__init__(self)
         self.socket = socket
         self.ready = False
+        self.connected = True
         self.daemon = True
         self.name = ""
         self.food = 4
         self.mode = Unit
-        self.latest_command = {}
+        self.command = {}
+        self._latest_command = {}
         self.buffer = ""
 
     def run(self):
@@ -223,24 +226,44 @@ class Player(threading.Thread):
             except IndexError:
                 self.send_error("Could not parse the command. Did it follow protocol?")
 
+    def start_next_turn(self):
+        self.command = self._latest_command
+        self._latest_command = {}
+
     def read_commands(self):
-        for line in self.readline_from_socket():
-            try:
-                command = json.loads(line)
-                self.send_ok()
-                self.latest_command = command
-            except ValueError:
-                self.send_error("Could not parse the command. Probably invalid JSON or command split over multiple lines.")
+        if not self.connected:
+            self._latest_command = {}
+            return
+        try:
+            for line in self.readline_from_socket():
+                try:
+                    command = json.loads(line)
+                    self.send_ok()
+                    self._latest_command = command
+                except ValueError:
+                    self.send_error("Could not parse the command. Probably invalid JSON or command split over multiple lines.")
+        except socket.error:
+            self.connected = False
+            print("Player {} has disconnected...".format(self.name))
 
     def send_gamestate(self, gamestate):
-        self.socket.send("{}\n".format(json.dumps(gamestate)))
+        self.send_line(json.dumps(gamestate))
 
     def send_ok(self):
-        self.socket.sendall('{"status": "OK"}\n')
+        self.send_line('{"status": "OK"}')
 
     def send_error(self, msg):
         print("({})Error: {}".format(self.name, msg))
-        self.socket.sendall('{{"status": "ERROR", "msg": "{}"}}\n'.format(msg))
+        self.send_line('{{"status": "ERROR", "msg": "{}"}}'.format(msg))
+
+    def send_line(self, line):
+        if not self.connected:
+            return
+        try:
+            self.socket.sendall(line+"\n")
+        except socket.error:
+            self.connected = False
+            print("Player {} has disconnected...".format(self.name))
 
     def readline_from_socket(self):
         temp = self.buffer.split("\n")
@@ -260,10 +283,12 @@ class Player(threading.Thread):
 
 
 class GameServer:
-    def __init__(self, port, mapfile, rounds_per_second, w, h):
+    def __init__(self, port, mapfile, rounds_per_second, w, h, observers):
         self._port = port
         self.players = []
-        self.numPlayers = 2
+        self.observers = []
+        self.numObservers = observers
+        self.numPlayers = 0  # Will be overwritten by loadmap. (but included here to make PyCharm happy)
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.bind(('', port))
         self.socket.listen(3)
@@ -273,6 +298,7 @@ class GameServer:
 
     def start(self):
         print("Server started on port {}.".format(self._port))
+        self.wait_for_observsers()
         self.wait_for_players()
         print("All players are ready, game is now starting.")
 
@@ -280,6 +306,7 @@ class GameServer:
         while True:
             self.display.clear()
 
+            self.start_next_turn()
             self.resolve_food_harvest()
             self.move_and_spawn_units()
 
@@ -290,7 +317,8 @@ class GameServer:
             if random.randrange(0, 100) < 10:
                 self.board.spawn_food()
 
-            self.send_gamestate()
+            self.send_gamestate_to_players()
+            self.send_gamestate_to_observers()
 
             self.display.update(self.rounds_per_second)
             for event in pygame.event.get():
@@ -298,17 +326,31 @@ class GameServer:
                     print("Game terminated by host.")
                     return True
 
+    def wait_for_observsers(self):
+        print("Waiting for {} observer(s) to connect...".format(self.numObservers))
+        for _ in xrange(self.numObservers):
+            observer = self.get_player_from_socket()
+            observer.name = "Observer"
+            self.observers.append(observer)
+
     def wait_for_players(self):
-        print("Waiting for {} players to connect...".format(self.numPlayers))
+        print("Waiting for {} player(s) to connect...".format(self.numPlayers))
         for _ in xrange(self.numPlayers):
-            conn, addr = self.socket.accept()
-            print("Recieved new connection from {}:{}".format(*addr))
-            player = Player(conn)
+            player = self.get_player_from_socket()
             player.start()
             self.players.append(player)
 
         while not self.check_players_ready():
             time.sleep(0.5)
+
+    def start_next_turn(self):
+        for player in self.players:
+            player.start_next_turn()
+
+    def get_player_from_socket(self):
+        conn, addr = self.socket.accept()
+        print("Recieved new connection from {}:{}".format(*addr))
+        return Player(conn)
 
     def check_players_ready(self):
         for player in self.players:
@@ -319,7 +361,7 @@ class GameServer:
     def move_and_spawn_units(self):
         for playerNum, player in enumerate(self.players):
             # Set new spawning mode for the player
-            mode = player.latest_command.get("mode", "standard")
+            mode = player.command.get("mode", "standard")
             if mode == "standard":
                 player.mode = Unit
             elif mode == "harvester":
@@ -328,13 +370,12 @@ class GameServer:
                 player.mode = Soldier
 
             # move all the units he sent a command for
-            for move in player.latest_command.get("moves", []):
+            for move in player.command.get("moves", []):
                 try:
                     x, y, direction = move
                     self.board.move_unit(x, y, playerNum, direction)
                 except (IndexError, ValueError), e:
                     print("{} sent an invalid move-command: '{}' Exception: {}".format(player.name, move, e.message))
-            player.latest_command = {}
         self.board.resolve_moves()
 
         # Spawn new units
@@ -406,7 +447,7 @@ class GameServer:
                     if line[x].isdigit():
                         self.board.add_spawner(x, y, int(line[x]))
 
-    def send_gamestate(self):
+    def send_gamestate_to_players(self):
         for i, player in enumerate(self.players):
             state = {"map_size": (self.board.width, self.board.height), "player_id": i}
             units = filter(lambda unit: unit.owner == i, self.board.units)
@@ -418,6 +459,18 @@ class GameServer:
             state["map"] = [cell.as_dict() for cell in cells]
             player.send_gamestate(state)
 
+    def send_gamestate_to_observers(self):
+        if self.numObservers == 0:
+            return
+
+        players = []
+        for i, player in enumerate(self.players):
+            players.append({"id": i, "name": player.name, "food": player.food, "command": player.command})
+        state = dict(map_size=(self.board.width, self.board.height), players=players)
+        state["map"] = [cell.as_dict() for cell in chain.from_iterable(self.board)]
+
+        for observer in self.observers:
+            observer.send_gamestate(state)
 
 
 def readCommandlineArguments():
@@ -426,6 +479,7 @@ def readCommandlineArguments():
     parser.add_argument('-p', '--port', type=int, help='The port to listen for incoming connections.', default=5050)
     parser.add_argument("--force-onscreen", type=bool, help="Try to force the windows to spawn on screen.", default=False)
     parser.add_argument("-r", "--resolution", help="Resoltuion given in the format x,y.", default="800,800")
+    parser.add_argument("-o", "--observers", type=int, help="Number of observers to use.", default=0)
     parser.add_argument("-f", "--fps", type=int,
                         help="The update frequency of the game. Each frame is 1 round in the game.", default=4)
     return vars(parser.parse_args())
@@ -444,6 +498,6 @@ if __name__ == '__main__':
     except IndexError, ValueError:
         print("Invalid argument given as resolution.")
     else:
-        server = GameServer(args['port'], args['mapfile'], args["fps"], w, h)
+        server = GameServer(args['port'], args['mapfile'], args["fps"], w, h, observers=args["observers"])
         server.start()
 
