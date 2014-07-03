@@ -32,7 +32,8 @@ class Display:
 
     def update(self, fps=30):
         pygame.display.flip()
-        self.clock.tick(fps)
+        if fps > 0:
+            self.clock.tick(fps)
 
     def draw_board(self, board, players):
         h, w = self.cell_h, self.cell_w

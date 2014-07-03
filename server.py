@@ -196,13 +196,13 @@ class GameBoard:
 
 
 class Player(threading.Thread):
-    def __init__(self, socket):
+    def __init__(self, socket, name="player"):
         threading.Thread.__init__(self)
         self.socket = socket
         self.ready = False
         self.connected = True
         self.daemon = True
-        self.name = ""
+        self.name = name
         self.food = 4
         self.mode = Unit
         self.command = {}
@@ -310,8 +310,6 @@ class GameServer:
             self.resolve_food_harvest()
             self.move_and_spawn_units()
 
-            self.display.draw_board(self.board, self.players)
-
             self.resolve_fights()
             self.destroy_spawners()
             if random.randrange(0, 100) < 10:
@@ -320,6 +318,7 @@ class GameServer:
             self.send_gamestate_to_players()
             self.send_gamestate_to_observers()
 
+            self.display.draw_board(self.board, self.players)
             self.display.update(self.rounds_per_second)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

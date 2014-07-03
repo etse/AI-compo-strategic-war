@@ -27,6 +27,10 @@
                         "type": "integer",
                         "required": true
                     },
+                    "name": {
+                        "type": "string",
+                        "required": "true"
+                    },
                     "food": {
                         "type": "integer",
                         "required": true
