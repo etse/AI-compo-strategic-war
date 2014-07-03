@@ -5,9 +5,9 @@ import pygame
 import json
 import sys
 from display import Display
-from server import GameBoard, Player
+from server import Player
 
-from testClient import readline_from_socket, update_board
+from testClient import readline_from_socket, GameBoardClient
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -21,12 +21,12 @@ for line in readline_from_socket(s):
     try:
         data = json.loads(line)
         if not display:
-            board = GameBoard(*data["map_size"])
+            board = GameBoardClient(*data["map_size"])
             players = [Player(None, name=player["name"]) for player in data["players"]]
             display = Display(600, 600, board.width, board.height)
             display.init()
 
-        update_board(board, data["map"])
+        board.update(board, data["map"])
         display.clear()
         display.draw_board(board, players)
         display.update(fps=0)

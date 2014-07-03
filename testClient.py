@@ -21,31 +21,51 @@ def readline_from_socket(socket):
     yield buffer.rstrip()
 
 
-def update_board(board, map):
-    board.units = []
-    board.spawners = []
-    board.foodcells = []
+class GameBoardClient(GameBoard):
+    def clear(self):
+        self.units = []
+        self.spawners = []
+        self.foodcells = []
 
-    for cell in chain.from_iterable(board):
-        cell.hasFood = False
+        for cell in chain.from_iterable(self.board):
+            cell.hasFood = False
+            cell.unit = None
 
-    for cell in iter(map):
-        x, y = cell["position"]
-        board[x][y].unit = None
-        if cell.get("spawner", None):
-            s = Spawner(cell["spawner"]["owner"], (x, y))
-            s.dead = cell["spawner"]["destroyed"]
-            board[x][y].spawner = s
-        if cell.get("unit", None):
-            unittype = Unit
-            if cell["unit"]["type"] == "harvester":
-                unittype = Harvester
-            elif cell["unit"]["type"] == "soldier":
-                unittype = Soldier
-            board.add_unit(x, y, unittype, cell["unit"]["owner"])
+    def update(self, map):
+        self.clear()
+        for cell in iter(map):
+            x, y = cell["position"]
+            self.board[x][y].unit = None
+            if cell.get("spawner", None):
+                s = Spawner(cell["spawner"]["owner"], (x, y))
+                s.dead = cell["spawner"]["destroyed"]
+                self.board[x][y].spawner = s
+            if cell.get("unit", None):
+                unittype = Unit
+                if cell["unit"]["type"] == "harvester":
+                    unittype = Harvester
+                elif cell["unit"]["type"] == "soldier":
+                    unittype = Soldier
+                self.add_unit(x, y, unittype, cell["unit"]["owner"])
 
-        board[x][y].isWall = cell.get("is_wall", False)
-        board[x][y].hasFood = cell.get("has_food", False)
+            self.board[x][y].isWall = cell.get("is_wall", False)
+            self.board[x][y].hasFood = cell.get("has_food", False)
+
+    def move_unit(self, x, y, direction):
+        unit = self.board[x][y].unit
+        if unit is not None:
+            newX, newY = x, y
+            if direction == "north":
+                newY = (y-1) % self.height
+            elif direction == "south":
+                newY = (y+1) % self.height
+            elif direction == "west":
+                newX = (x-1) % self.width
+            elif direction == "east":
+                newX = (x+1) % self.width
+
+            self.board[newX][newY].unit = unit
+            unit.position = (newX, newY)
 
 
 class GameAI:
@@ -76,14 +96,14 @@ class GameAI:
                     continue
 
                 if not self.display:
-                    self.board = GameBoard(*data["map_size"])
+                    self.board = GameBoardClient(*data["map_size"])
                     self.players = [Player(None, name="Player"+str(i)) for i in xrange(data["num_players"])]
                     self.my_id = data["player_id"]
                     self.players[self.my_id].name = self.name
                     self.display = Display(600, 600, self.board.width, self.board.height)
                     self.display.init()
 
-                update_board(self.board, data["map"])
+                self.board.update(data["map"])
                 self.resolve_round()
                 self.display.clear()
                 self.display.draw_board(self.board, self.players)
@@ -95,6 +115,8 @@ class GameAI:
                         sys.exit(0)
 
             except (IndexError, ValueError, KeyError), e:
+                import traceback
+                traceback.print_exc()
                 print("Error parsing:", e)
 
     def handle_status_message(self, command):
@@ -115,11 +137,20 @@ class GameAI:
         The map-state is stored in self.board.
         '''
 
-        # Current implementation will just send a random command to the server
+        # Simple implementation - do not move anywhere a unit is currently.
         command = {"mode": random.choice(["standard", "harvester", "soldier"]), "moves": []}
         for unit in filter(lambda u: u.owner == self.my_id, self.board.units):
             x, y = unit.position
-            command["moves"].append([x, y, random.choice(["north", "south", "west", "east"])])
+            legal_directions = []
+            for nx, ny, direction in [(x, y-1, "north"), (x, y+1, "south"), (x-1, y, "west"), (x+1, y, "east")]:
+                rx, ry = self.board.get_real_position(nx, ny)
+                if not self.board.any_units_on_position((rx, ry)) and not self.board[rx][ry].isWall:
+                    legal_directions.append(direction)
+
+            if legal_directions:
+                direction = random.choice(legal_directions)
+                command["moves"].append([x, y, direction])
+                self.board.move_unit(x, y, direction)
         self.send_command(command)
 
 

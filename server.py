@@ -90,6 +90,9 @@ class GameBoard:
     def __getitem__(self, item):
         return self.board[item]
 
+    def get_real_position(self, x, y):
+        return x % self.width, y % self.height
+
     def any_units_on_position(self, position):
         return self.board[position[0]][position[1]].unit is not None
 
@@ -115,8 +118,9 @@ class GameBoard:
                 return True
 
     def move_unit(self, x, y, owner, direction):
-        if self.board[x][y].unit is not None:
-            if self.board[x][y].unit.owner == owner:
+        unit = self.board[x][y].unit
+        if unit is not None:
+            if unit.owner == owner and not unit.hasMoved:
                 newX, newY = x, y
                 if direction == "north":
                     newY = (y-1) % self.height
@@ -128,16 +132,16 @@ class GameBoard:
                     newX = (x+1) % self.width
 
                 if not (self.board[newX][newY].isWall or self.board[newX][newY].hasFood):
-                    self.board[x][y].unit.hasMoved = True
+                    unit.hasMoved = True
                     if self.board[newX][newY].newUnit is not None:
                         # Someone else has moved here, kill the unit and do not move
                         self.board[newX][newY].newUnit.dead = True
-                        self.units.remove(self.board[x][y].unit)
+                        self.units.remove(unit)
                         self.board[x][y].unit = None
                     else:
                         # Lets move the unit
-                        self.board[newX][newY].newUnit = self.board[x][y].unit
-                        self.board[newX][newY].newUnit.position = (newX, newY)
+                        self.board[newX][newY].newUnit = unit
+                        unit.position = (newX, newY)
                         self.board[x][y].unit = None
                     return True
         return False
