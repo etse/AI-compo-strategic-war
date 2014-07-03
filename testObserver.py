@@ -6,7 +6,7 @@ import json
 import sys
 from functools import partial
 from display import Display
-from server import *
+from server import Unit, Harvester, Soldier, GameBoard, Player, Spawner
 
 
 def readline_from_socket(socket):
