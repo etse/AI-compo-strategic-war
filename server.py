@@ -139,6 +139,8 @@ class GameBoard:
                         self.board[newX][newY].newUnit = self.board[x][y].unit
                         self.board[newX][newY].newUnit.position = (newX, newY)
                         self.board[x][y].unit = None
+                    return True
+        return False
 
     def resolve_moves(self):
         # If 2 units moved to the same space, one will still be left
@@ -301,6 +303,7 @@ class GameServer:
         self.wait_for_observsers()
         self.wait_for_players()
         print("All players are ready, game is now starting.")
+        self.send_gamestate_to_observers(unfiltered=True)
 
         self.display.init()
         while True:
@@ -369,12 +372,15 @@ class GameServer:
                 player.mode = Soldier
 
             # move all the units he sent a command for
+            legal_moves = []  # Used so we do not send loads of illegal-moves to the observers
             for move in player.command.get("moves", []):
                 try:
                     x, y, direction = move
-                    self.board.move_unit(x, y, playerNum, direction)
+                    if self.board.move_unit(x, y, playerNum, direction):
+                        legal_moves.append(move)
                 except (IndexError, ValueError), e:
                     print("{} sent an invalid move-command: '{}' Exception: {}".format(player.name, move, e.message))
+            player.command["moves"] = legal_moves
         self.board.resolve_moves()
 
         # Spawn new units
@@ -458,7 +464,7 @@ class GameServer:
             state["map"] = [cell.as_dict() for cell in cells]
             player.send_gamestate(state)
 
-    def send_gamestate_to_observers(self):
+    def send_gamestate_to_observers(self, unfiltered=False):
         if self.numObservers == 0:
             return
 
@@ -466,7 +472,8 @@ class GameServer:
         for i, player in enumerate(self.players):
             players.append({"id": i, "name": player.name, "food": player.food, "command": player.command})
         state = dict(map_size=(self.board.width, self.board.height), players=players)
-        state["map"] = [cell.as_dict() for cell in chain.from_iterable(self.board)]
+        cells = filter(lambda c: (not c.empty()) and (unfiltered or not c.isWall), chain.from_iterable(self.board))
+        state["map"] = [cell.as_dict() for cell in cells]
 
         for observer in self.observers:
             observer.send_gamestate(state)

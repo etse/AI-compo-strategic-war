@@ -279,7 +279,8 @@ Remember that the upper-left corner has the coordinates (0,0), just like normal 
 The server allows for observers over a socket. Use the **-o number** argument when starting to server
 to set the number of observers you want. An observer must connect before any players join the game and
 will be feeded everything that happens each turn. (the whole map-state and the command each player
-executed).
+executed). To save bandwidth empty cells are not sent - and information regarding cells with walls
+is only sent the first time.
 
 For information about the protocol take a look the the
 [server_to_observer.json](schemas/server_to_observer.json) file.
