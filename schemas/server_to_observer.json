@@ -29,7 +29,7 @@
                     },
                     "name": {
                         "type": "string",
-                        "required": "true"
+                        "required": true
                     },
                     "food": {
                         "type": "integer",
@@ -37,7 +37,7 @@
                     },
                     "command": {
                         "type": "object",
-                        "required": "true",
+                        "required": true,
                         "properties": {
                             "mode": {
                                 "type": "string",
