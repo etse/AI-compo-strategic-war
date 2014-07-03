@@ -1,0 +1,134 @@
+{
+    "type": "object",
+    "properties": {
+        "map_size": {
+            "type": "array",
+            "required": true,
+            "minItems": 2,
+            "items": [
+                {
+                    "title": "width",
+                    "type": "integer"
+                },
+                {
+                    "title": "height",
+                    "type": "integer"
+                }
+            ]
+        },
+
+        "players": {
+            "type": "array",
+            "required": true,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "required": "true"
+                    },
+                    "food": {
+                        "type": "integer",
+                        "required": true
+                    },
+                    "command": {
+                        "type": "object",
+                        "required": "true",
+                        "properties": {
+                            "mode": {
+                                "type": "string",
+                                "required": false,
+                                "default": "standard",
+                                "enum": ["standard", "harvester", "soldier"]
+                            },
+
+                            "moves": {
+                                "type": "array",
+                                "required": false,
+                                "items": {
+                                    "type": "array",
+                                    "minItems": 3,
+                                    "items": [
+                                        {
+                                            "title": "x coordinate",
+                                            "type": "integer"
+                                        },
+                                        {
+                                            "title": "y coordinate",
+                                            "type": "integer"
+                                        },
+                                        {
+                                            "title": "direction",
+                                            "type": "string",
+                                            "enum": ["north", "south", "west", "east"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+
+        "map": {
+            "type": "array",
+            "required": true,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "position": {
+                        "type": "array",
+                        "required": true,
+                        "minItems": 2,
+                        "items": [
+                            {
+                                "title": "x coordinate",
+                                "type": "integer"
+                            },
+                            {
+                                "title": "y coordinate",
+                                "type": "integer"
+                            }
+                        ]
+                    },
+
+                    "spawner": {
+                        "type": "object",
+                        "required": false,
+                        "properties": {
+                            "owner": {"type": "integer"},
+                            "destroyed": {"type": "boolean"}
+                        }
+                    },
+
+                    "unit": {
+                        "type": "object",
+                        "required": false,
+                        "properties": {
+                            "owner": {
+                                "type": "integer",
+                                "required": true
+                            },
+                            "type": {
+                                "type": "string",
+                                "enum": ["harvester", "standard", "soldier"],
+                                "required": true
+                            }
+                        }
+                    },
+
+                    "is_wall": {
+                        "type": "boolean",
+                        "required": false
+                    },
+
+                    "has_food": {
+                        "type": "boolean",
+                        "required": false
+                    }
+                }
+            }
+        }
+    }
+}
