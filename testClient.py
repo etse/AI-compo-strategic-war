@@ -137,7 +137,7 @@ class GameAI:
         The map-state is stored in self.board.
         '''
 
-        # Simple implementation - do not move anywhere a unit is currently.
+        # Simple implementation
         command = {"mode": random.choice(["standard", "harvester", "soldier"]), "moves": []}
         for unit in filter(lambda u: u.owner == self.my_id, self.board.units):
             x, y = unit.position
