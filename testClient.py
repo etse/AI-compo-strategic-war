@@ -104,7 +104,6 @@ class GameAI:
                 self.display.init()
 
             self.board.update(data["map"])
-            start_time = time.time()
             self.display.clear()
             self.display.draw_board(self.board, self.players)
             self.display.update(fps=0)
