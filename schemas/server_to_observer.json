@@ -25,7 +25,7 @@
                 "properties": {
                     "id": {
                         "type": "integer",
-                        "required": "true"
+                        "required": true
                     },
                     "food": {
                         "type": "integer",
