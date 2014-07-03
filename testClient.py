@@ -48,7 +48,7 @@ def update_board(board, map):
         board[x][y].hasFood = cell.get("has_food", False)
 
 
-class MyGameAI:
+class GameAI:
     def __init__(self, name):
         self.name = name
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -124,5 +124,5 @@ class MyGameAI:
 
 
 if __name__ == '__main__':
-    myai = MyGameAI("TestAI"+str(random.randint(0, 1000)))
+    myai = GameAI("TestAI"+str(random.randint(0, 1000)))
     myai.start("127.0.0.1", 5050)
