@@ -1,11 +1,12 @@
 from __future__ import print_function, division, unicode_literals
 
-import socket, random
-from functools import partial
-from itertools import chain
+import socket
+import random
 import json
 import sys
 import pygame
+from functools import partial
+from itertools import chain
 from display import Display
 from server import Unit, Harvester, Soldier, GameBoard, Player, Spawner
 
@@ -89,35 +90,30 @@ class GameAI:
         self.sendline("name {}".format(self.name))
 
         for line in readline_from_socket(self.sock):
-            try:
-                data = json.loads(line)
-                if "status" in data:
-                    self.handle_status_message(data)
-                    continue
+            data = json.loads(line)
+            if "status" in data:
+                self.handle_status_message(data)
+                continue
 
-                if not self.display:
-                    self.board = GameBoardClient(*data["map_size"])
-                    self.players = [Player(None, name="Player"+str(i)) for i in xrange(data["num_players"])]
-                    self.my_id = data["player_id"]
-                    self.players[self.my_id].name = self.name
-                    self.display = Display(600, 600, self.board.width, self.board.height)
-                    self.display.init()
+            if not self.display:
+                self.board = GameBoardClient(*data["map_size"])
+                self.players = [Player(None, name="Player"+str(i)) for i in xrange(data["num_players"])]
+                self.my_id = data["player_id"]
+                self.players[self.my_id].name = self.name
+                self.display = Display(600, 600, self.board.width, self.board.height)
+                self.display.init()
 
-                self.board.update(data["map"])
-                self.display.clear()
-                self.display.draw_board(self.board, self.players)
-                self.display.update(fps=0)
-                self.resolve_round()
+            self.board.update(data["map"])
+            start_time = time.time()
+            self.display.clear()
+            self.display.draw_board(self.board, self.players)
+            self.display.update(fps=0)
+            self.resolve_round()
 
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        print("Game terminated by host.")
-                        sys.exit(0)
-
-            except (IndexError, ValueError, KeyError), e:
-                import traceback
-                traceback.print_exc()
-                print("Error parsing:", e)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    print("Game terminated by host.")
+                    sys.exit(0)
 
     def handle_status_message(self, command):
         '''
