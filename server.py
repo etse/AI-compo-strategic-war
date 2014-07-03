@@ -454,7 +454,7 @@ class GameServer:
 
     def send_gamestate_to_players(self):
         for i, player in enumerate(self.players):
-            state = {"map_size": (self.board.width, self.board.height), "player_id": i}
+            state = {"map_size": (self.board.width, self.board.height), "player_id": i, "num_players": self.numPlayers}
             units = filter(lambda unit: unit.owner == i, self.board.units)
             cells = set()
             for unit in units:

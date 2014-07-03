@@ -230,9 +230,9 @@ Any information about what a cell isn't is left out. That means there will not b
 telling you that a cell is **not** a wall, instead the client can assume that a cell is not a wall
 unless stated otherwise. 
 
-Additionally it will include your player-id and the total size of the map.
+Additionally it will include your player-id, number of players and the total size of the map.
 ```
-{"map_size": [10, 10], "player_id": 0, "map": [...]}\n
+{"map_size": [10, 10], "player_id": 0, "num_players": 2, "map": [...]}\n
 ```
 *map_size* is the width and height of the current map, and *player_id* is your ID in the game. This is used
 to be able to distinguish your units from enemy units on the map.

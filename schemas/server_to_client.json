@@ -22,6 +22,11 @@
             "required": true
         },
 
+        "num_players": {
+            "type": "integer",
+            "required": true
+        },
+
         "map": {
             "type": "array",
             "required": true,
