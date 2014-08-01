@@ -125,7 +125,9 @@ class GameBoard:
 
     def move_unit(self, x, y, owner, direction):
         unit = self.board[x][y].unit
-        if unit is not None:
+        if unit is None and VERBOSE:
+            print("MOVEMENT: A player tried to move a unit on an empty cell, the cell was ({}, {})".format(x, y))
+        elif unit is not None:
             if unit.owner == owner and not unit.hasMoved:
                 newX, newY = x, y
                 if direction == "north":
@@ -152,6 +154,10 @@ class GameBoard:
                         unit.position = (newX, newY)
                         self.board[x][y].unit = None
                     return True
+                elif VERBOSE:
+                    print("MOVEMENT: A player tried to move a unit into a cell that contains a wall or food. ({}, {}), with direction: {}.", x, y, direction)
+            elif VERBOSE:
+                print("MOVEMENT: A Player tried to move a unit that he does not own, or has moved before on cell ({}, {})".format(x, y))
         return False
 
     def resolve_moves(self):
