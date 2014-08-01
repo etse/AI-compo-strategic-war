@@ -16,7 +16,6 @@ class TestAI(GameAI):
             self.send_command({"mode": "standard", "moves": [[21, 21, "east"], [22, 21, "south"]]})
         elif self.turn == 10:
             self.send_command({"mode": "standard", "moves": [[22, 22, "east"], [21, 21, "south"], [22, 21, "south"]]})
-        print(self.board.units)
 
 
 
