@@ -147,7 +147,7 @@ class GameBoard:
                         self.units.remove(unit)
                         self.board[x][y].unit = None
                         if VERBOSE:
-                            print("COLLISION: Two units moved to ({}, {}), latter unit came from ({}, {})".format(newX, newY, x, y))
+                            print("COLLISION: Two units moved to ({}, {}), the last unit came from ({}, {})".format(newX, newY, x, y))
                     else:
                         # Lets move the unit
                         self.board[newX][newY].newUnit = unit
@@ -179,7 +179,7 @@ class GameBoard:
             for cell in column:
                 if cell.newUnit is not None and cell.unit is not None:
                     if VERBOSE:
-                        print("COLLISION: Two units on {}, A unit was already standing on this tile when another moved to it - and did not move away.".format(cell.unit.position))
+                        print("COLLISION: Two units on {}, A unit was already standing on this cell (and did not move) and another unit moved here to it.".format(cell.unit.position))
                     if cell.newUnit in self.units:
                         self.units.remove(cell.newUnit)
                     if cell.unit in self.units:
