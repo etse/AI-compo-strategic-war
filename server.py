@@ -144,6 +144,8 @@ class GameBoard:
                         self.board[newX][newY].newUnit.dead = True
                         self.units.remove(unit)
                         self.board[x][y].unit = None
+                        if VERBOSE:
+                            print("COLLISION: Two units moved to ({}, {}), latter unit came from ({}, {})".format(newX, newY, x, y))
                     else:
                         # Lets move the unit
                         self.board[newX][newY].newUnit = unit
@@ -170,12 +172,14 @@ class GameBoard:
         for column in self.board:
             for cell in column:
                 if cell.newUnit is not None and cell.unit is not None:
+                    if VERBOSE:
+                        print("COLLISION: Two units on {}, A unit was already standing on this tile when another moved to it - and did not move away.".format(cell.unit.position))
                     if cell.newUnit in self.units:
                         self.units.remove(cell.newUnit)
                     if cell.unit in self.units:
                         self.units.remove(cell.unit)
-
                     cell.unit = None
+
                 if cell.newUnit is not None:
                     cell.unit = cell.newUnit
                 if cell.unit is not None:
@@ -214,7 +218,7 @@ class Player(threading.Thread):
         self.connected = True
         self.daemon = True
         self.name = name
-        self.food = 4
+        self.food = 5
         self.mode = Unit
         self.command = {}
         self._latest_command = {}
@@ -497,6 +501,7 @@ def readCommandlineArguments():
     parser = ArgumentParser(description="Runs a simple server for the compo.")
     parser.add_argument("mapfile", help="The map to be used for the game.")
     parser.add_argument('-p', '--port', type=int, help='The port to listen for incoming connections.', default=5050)
+    parser.add_argument('-v', '--verbose', help='Turns on verbose printing', default=False, action='store_true')
     parser.add_argument("--force-onscreen", type=bool, help="Try to force the windows to spawn on screen.", default=False)
     parser.add_argument("-r", "--resolution", help="Resoltuion given in the format x,y.", default="800,800")
     parser.add_argument("-o", "--observers", type=int, help="Number of observers to use.", default=0)
@@ -508,7 +513,7 @@ def readCommandlineArguments():
 if __name__ == '__main__':
     random.seed(42)
     args = readCommandlineArguments()
-
+    VERBOSE = args['verbose']
     if args["force_onscreen"]:
         os.environ['SDL_VIDEO_WINDOW_POS'] = "50,50"
 
