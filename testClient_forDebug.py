@@ -12,18 +12,20 @@ class TestAI(GameAI):
         self.turn += 1
         if self.turn == 1:
             print(self.board.units)
-            self.send_command({"mode": "standard", "moves": [[48,80,"north"]]})
+            self.send_command({"mode": "standard", "moves": [[48,80,"north"],[21,21,"east"]]})
 
         elif self.turn == 5:
             print(self.board.units)
-            self.send_command({"mode": "standard", "moves": [[48,79,"north"],[48,80,"north"]]})
+            self.send_command({"mode": "standard", "moves": [[48,79,"north"],[22,21,"south"],[48,80,"north"],[21,21,"east"]]})
 
         elif self.turn == 10:
             print(self.board.units)
-            self.send_command({"mode": "standard", "moves": [[48,79,"north"],[48,80,"north"]]})
+            self.send_command({"mode": "standard", "moves": [[48,79,"north"],[22,21,"south"],[48,80,"north"],[21,21,"east"]]})
 
-        elif self.turn == 14:
+        elif self.turn == 15:
             print(self.board.units)
+            self.send_command({"mode": "standard", "moves":  [[48,78,"north"],[22,22,"east"],[48,79,"north"],[22,21,"south"],[48,80,"north"]]})
+
 
 
 

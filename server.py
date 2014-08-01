@@ -155,7 +155,7 @@ class GameBoard:
                         self.board[x][y].unit = None
                     return True
                 elif VERBOSE:
-                    print("MOVEMENT: A player tried to move a unit into a cell that contains a wall or food. ({}, {}), with direction: {}.", x, y, direction)
+                    print("MOVEMENT: A player tried to move a unit into a cell that contains a wall or food. ({}, {}), with direction: {}.".format(x, y, direction))
             elif VERBOSE and unit.owner != owner:
                 print("MOVEMENT: A Player tried to move a unit that he does not own on cell ({}, {})".format(x, y))
             elif VERBOSE and unit.hasMoved:
