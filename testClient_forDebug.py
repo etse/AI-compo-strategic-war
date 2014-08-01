@@ -13,25 +13,10 @@ class TestAI(GameAI):
         if self.turn == 1:
             self.send_command({"mode": "standard", "moves": [[21, 21, "east"]]})
         elif self.turn == 2:
-            self.send_command({"mode": "standard", "moves": [[22, 21, "east"]]})
-        elif self.turn == 3:
-            self.send_command({"mode": "standard", "moves": [[23, 21, "east"]]})
-        elif self.turn == 4:
-            self.send_command({"mode": "standard", "moves": [[21, 21, "east"]]})
-        elif self.turn == 5:
-            self.send_command({"mode": "standard", "moves": [[22, 21, "east"]]})
-        elif self.turn == 20:
-            self.send_command({"mode": "standard", "moves": [[23, 21, "east"], [24, 21, "east"]]})
-        elif self.turn == 21:
-            self.send_command({"mode": "standard", "moves": [[24, 21, "east"], [25, 21, "east"]]})
-        elif self.turn == 22:
-            self.send_command({"mode": "standard", "moves": [[25, 21, "east"], [26, 21, "east"]]})
-        elif self.turn == 23:
-            self.send_command({"mode": "standard", "moves": [[26, 21, "east"], [27, 21, "east"]]})
-        elif self.turn == 24:
-            self.send_command({"mode": "standard", "moves": [[27, 21, "east"], [28, 21, "west"]]})
-        elif self.turn == 25:
-            self.send_command({"mode": "standard", "moves": [[28, 21, "east"], [27, 21, "west"]]})
+            self.send_command({"mode": "standard", "moves": [[21, 21, "east"], [22, 21, "south"]]})
+        elif self.turn == 10:
+            self.send_command({"mode": "standard", "moves": [[22, 22, "east"], [21, 21, "south"], [22, 21, "south"]]})
+        print(self.board.units)
 
 
 
