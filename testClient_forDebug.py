@@ -11,16 +11,17 @@ class TestAI(GameAI):
     def resolve_round(self):
         self.turn += 1
         if self.turn == 1:
-            print(1)
             self.send_command({"mode": "standard", "moves": [[21, 21, "east"]]})
 
-        elif self.turn == 20:
-            print(2)
+        elif self.turn == 5:
             self.send_command({"mode": "standard", "moves": [[22, 21, "south"], [21, 21, "east"]]})
 
-        elif self.turn == 40:
-            print(3)
+        elif self.turn == 10:
             self.send_command({"mode": "standard", "moves": [[22, 21, "south"], [21, 21, "east"], [22, 22, "west"]]})
+
+        elif self.turn == 15:
+            self.send_command({"mode": "standard", "moves": [[21, 21, "south"], [21, 22, "east"], [22, 22, "north"], [22, 21, "west"]]})
+
 
 
 
