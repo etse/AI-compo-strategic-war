@@ -156,8 +156,10 @@ class GameBoard:
                     return True
                 elif VERBOSE:
                     print("MOVEMENT: A player tried to move a unit into a cell that contains a wall or food. ({}, {}), with direction: {}.", x, y, direction)
-            elif VERBOSE:
-                print("MOVEMENT: A Player tried to move a unit that he does not own, or has moved before on cell ({}, {})".format(x, y))
+            elif VERBOSE and unit.owner != owner:
+                print("MOVEMENT: A Player tried to move a unit that he does not own on cell ({}, {})".format(x, y))
+            elif VERBOSE and unit.hasMoved:
+                print("MOVEMENT: A Player tried to move a unit that has already moved on cell ({}, {})".format(x, y))
         return False
 
     def resolve_moves(self):

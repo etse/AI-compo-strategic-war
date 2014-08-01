@@ -20,7 +20,7 @@ class TestAI(GameAI):
 
         elif self.turn == 40:
             print(3)
-            self.send_command({"mode": "standard", "moves": [[22, 21, "south"], [21, 21, "east"]]})
+            self.send_command({"mode": "standard", "moves": [[22, 21, "south"], [21, 21, "east"], [22, 22, "west"]]})
 
 
 
