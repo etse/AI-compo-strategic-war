@@ -187,6 +187,7 @@ class GameBoard:
                     if cell.unit in self.units:
                         self.units.remove(cell.unit)
                     cell.unit = None
+                    cell.newUnit = None
 
                 if cell.newUnit is not None:
                     cell.unit = cell.newUnit
