@@ -94,6 +94,7 @@ class GameAI:
             if "status" in data:
                 self.handle_status_message(data)
                 continue
+            print(data["map_size"])
 
             if not self.display:
                 self.board = GameBoardClient(*data["map_size"])

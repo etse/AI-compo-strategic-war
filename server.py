@@ -31,6 +31,12 @@ class Unit:
     def type(self):
         return self.__class__.__name__.lower()
 
+    def __str__(self):
+        return "<{} at {}>".format(self.type, self.position)
+
+    def __repr__(self):
+        return self.__str__()
+
 
 class Harvester(Unit):
     def __init__(self, owner, position):
@@ -169,13 +175,12 @@ class GameBoard:
                     if cell.unit in self.units:
                         self.units.remove(cell.unit)
 
-                    cell.newUnit = None
                     cell.unit = None
                 if cell.newUnit is not None:
                     cell.unit = cell.newUnit
-                    cell.newUnit = None
                 if cell.unit is not None:
                     cell.unit.hasMoved = False
+                cell.newUnit = None
 
     def calculate_attack_strengths(self):
         for unit in self.units:
@@ -245,7 +250,8 @@ class Player(threading.Thread):
                 try:
                     command = json.loads(line)
                     self.send_ok()
-                    self._latest_command = command
+                    if type(command) is dict:
+                        self._latest_command = command
                 except ValueError:
                     self.send_error("Could not parse the command. Probably invalid JSON or command split over multiple lines.")
         except socket.error:
@@ -310,6 +316,7 @@ class GameServer:
         self.send_gamestate_to_observers(unfiltered=True)
 
         self.display.init()
+        delay = 10
         while True:
             self.display.clear()
 
@@ -326,11 +333,14 @@ class GameServer:
             self.send_gamestate_to_observers()
 
             self.display.draw_board(self.board, self.players)
-            self.display.update(self.rounds_per_second)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    print("Game terminated by host.")
-                    return True
+            while delay > 0:
+                delay -= 1
+                self.display.update(self.rounds_per_second)
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        print("Game terminated by host.")
+                        return True
+            delay = 1
 
     def wait_for_observsers(self):
         print("Waiting for {} observer(s) to connect...".format(self.numObservers))
@@ -382,7 +392,7 @@ class GameServer:
                     x, y, direction = move
                     if self.board.move_unit(x, y, playerNum, direction):
                         legal_moves.append(move)
-                except (IndexError, ValueError), e:
+                except (IndexError, ValueError, TypeError), e:
                     print("{} sent an invalid move-command: '{}' Exception: {}".format(player.name, move, e.message))
             player.command["moves"] = legal_moves
         self.board.resolve_moves()
