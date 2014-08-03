@@ -518,7 +518,7 @@ def readCommandlineArguments():
     parser.add_argument("--force-onscreen", type=bool, help="Try to force the windows to spawn on screen.", default=False)
     parser.add_argument("-r", "--resolution", help="Resoltuion given in the format x,y.", default="800,800")
     parser.add_argument("-o", "--observers", type=int, help="Number of observers to use.", default=0)
-    parser.add_argument("-f", "--fps", type=int,
+    parser.add_argument("-f", "--fps", type=float,
                         help="The update frequency of the game. Each frame is 1 round in the game.", default=1)
     return vars(parser.parse_args())
 
