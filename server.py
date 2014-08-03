@@ -329,7 +329,7 @@ class GameServer:
         self.send_gamestate_to_observers(unfiltered=True)
 
         self.display.init()
-        delay = 10
+        first_round = True
         while True:
             self.display.clear()
 
@@ -346,14 +346,18 @@ class GameServer:
             self.send_gamestate_to_observers()
 
             self.display.draw_board(self.board, self.players)
-            while delay > 0:
-                delay -= 1
-                self.display.update(self.rounds_per_second)
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        print("Game terminated by host.")
-                        return True
-            delay = 1
+            if first_round:
+                self.wait_for_next_round(1)
+            self.wait_for_next_round(self.rounds_per_second)
+
+    def wait_for_next_round(self, rounds_per_seconds):
+        num_updates = int(20 / rounds_per_seconds)
+        for _ in xrange(num_updates):
+            self.display.update(20)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    print("Game terminated by host.")
+                    return True
 
     def wait_for_observsers(self):
         print("Waiting for {} observer(s) to connect...".format(self.numObservers))
@@ -515,7 +519,7 @@ def readCommandlineArguments():
     parser.add_argument("-r", "--resolution", help="Resoltuion given in the format x,y.", default="800,800")
     parser.add_argument("-o", "--observers", type=int, help="Number of observers to use.", default=0)
     parser.add_argument("-f", "--fps", type=int,
-                        help="The update frequency of the game. Each frame is 1 round in the game.", default=4)
+                        help="The update frequency of the game. Each frame is 1 round in the game.", default=1)
     return vars(parser.parse_args())
 
 

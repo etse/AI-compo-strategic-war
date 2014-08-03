@@ -11,20 +11,19 @@ class TestAI(GameAI):
     def resolve_round(self):
         self.turn += 1
         if self.turn == 1:
-            print(self.board.units)
-            self.send_command({"mode": "standard", "moves": [[48,80,"north"],[21,21,"east"]]})
+            print("Runde 0:", self.board.units)
+            self.send_command({"mode": "harvester", "moves": [[48,80,"north"],[21,21,"east"]]})
 
-        elif self.turn == 5:
-            print(self.board.units)
-            self.send_command({"mode": "standard", "moves": [[48,79,"north"],[22,21,"south"],[48,80,"north"],[21,21,"east"]]})
+        elif self.turn == 2:
+            print("Runde 1:", self.board.units)
+            self.send_command({"mode": "soldier", "moves": [[48,79,"north"],[22,21,"south"],[48,80,"north"],[21,21,"east"]]})
 
-        elif self.turn == 10:
-            print(self.board.units)
-            self.send_command({"mode": "standard", "moves": [[48,79,"north"],[22,21,"south"],[48,80,"north"],[21,21,"east"]]})
+        elif self.turn == 3:
+            print("Runde 2:", self.board.units)
+            self.send_command({"mode": "harvester", "moves": [[48,79,"north"],[22,21,"south"],[48,80,"north"],[21,21,"east"]]})
 
-        elif self.turn == 15:
-            print(self.board.units)
-            self.send_command({"mode": "standard", "moves":  [[48,78,"north"],[22,22,"east"],[48,79,"north"],[22,21,"south"],[48,80,"north"]]})
+        elif self.turn == 4:
+            print("Runde 3:", self.board.units)
 
 
 
