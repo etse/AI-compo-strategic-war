@@ -339,7 +339,7 @@ class GameServer:
 
             self.resolve_fights()
             self.destroy_spawners()
-            if random.randrange(0, 100) < 10:
+            if random.randrange(0, 100) < 17:
                 self.board.spawn_food()
 
             self.send_gamestate_to_players()
@@ -348,7 +348,10 @@ class GameServer:
             self.display.draw_board(self.board, self.players)
             if first_round:
                 self.wait_for_next_round(1)
-            self.wait_for_next_round(self.rounds_per_second)
+                first_round = False
+            if self.wait_for_next_round(self.rounds_per_second):
+                return True
+
 
     def wait_for_next_round(self, rounds_per_seconds):
         num_updates = int(20 / rounds_per_seconds)
@@ -358,6 +361,7 @@ class GameServer:
                 if event.type == pygame.QUIT:
                     print("Game terminated by host.")
                     return True
+        return False
 
     def wait_for_observsers(self):
         print("Waiting for {} observer(s) to connect...".format(self.numObservers))
@@ -519,7 +523,7 @@ def readCommandlineArguments():
     parser.add_argument("-r", "--resolution", help="Resoltuion given in the format x,y.", default="800,800")
     parser.add_argument("-o", "--observers", type=int, help="Number of observers to use.", default=0)
     parser.add_argument("-f", "--fps", type=float,
-                        help="The update frequency of the game. Each frame is 1 round in the game.", default=1)
+                        help="The update frequency of the game. Each frame is 1 round in the game.", default=2)
     return vars(parser.parse_args())
 
 
