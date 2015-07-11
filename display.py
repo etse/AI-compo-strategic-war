@@ -38,8 +38,8 @@ class Display:
     def draw_board(self, board, players):
         h, w = self.cell_h, self.cell_w
 
-        for x in xrange(board.width):
-            for y in xrange(board.height):
+        for x in range(board.width):
+            for y in range(board.height):
                 if board[x][y].isWall:
                     pygame.draw.rect(self.screen, WALLCOLOR, (w*x, h*y, w+1, h+1))
                 if board[x][y].spawner:

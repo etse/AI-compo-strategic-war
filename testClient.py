@@ -14,7 +14,7 @@ from server import Unit, Harvester, Soldier, GameBoard, Player, Spawner
 def readline_from_socket(socket):
     buffer = ""
     for data in iter(partial(socket.recv, 1024), ''):
-        buffer += data
+        buffer += data.decode('UTF-8')
         temp = buffer.split("\n")
         buffer = temp.pop()
         for line in temp:
@@ -80,7 +80,7 @@ class GameAI:
         self.my_id = None
 
     def sendline(self, line):
-        self.sock.sendall(line+"\n")
+        self.sock.send((line+"\n").encode('UTF-8'))
 
     def send_command(self, command):
         self.sendline(json.dumps(command))
@@ -97,7 +97,7 @@ class GameAI:
 
             if not self.display:
                 self.board = GameBoardClient(*data["map_size"])
-                self.players = [Player(None, name="Player"+str(i)) for i in xrange(data["num_players"])]
+                self.players = [Player(None, name="Player"+str(i)) for i in range(data["num_players"])]
                 self.my_id = data["player_id"]
                 self.players[self.my_id].name = self.name
                 self.display = Display(600, 600, self.board.width, self.board.height)

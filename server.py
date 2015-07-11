@@ -87,7 +87,7 @@ class GameBoard:
     def __init__(self, width, height):
         self.width = width
         self.height = height
-        self.board = [[BoardCell(x, y) for y in xrange(height)] for x in xrange(width)]
+        self.board = [[BoardCell(x, y) for y in range(height)] for x in range(width)]
         self.spawners = []
         self.units = []
         self.foodcells = []
@@ -172,7 +172,7 @@ class GameBoard:
                 x, y = unit.position
                 self.board[x][y].newUnit = None
                 self.board[x][y].unit = None
-        self.units = filter(lambda unit: unit not in deadUnits, self.units)
+        self.units = [_ for _ in filter(lambda unit: unit not in deadUnits, self.units)]
 
         # To resolve the move, units need to be moved from .newUnit to .unit
         # This might cause a conflict if the old unit stood still - in that case
@@ -204,8 +204,8 @@ class GameBoard:
         if distance not in self._offsetcache:
             offsets = []
             radius = int(math.sqrt(distance))
-            for x in xrange(-radius, radius+1):
-                for y in xrange(-radius, radius+1):
+            for x in range(-radius, radius+1):
+                for y in range(-radius, radius+1):
                     if 0 < x**2 + y**2 <= distance:
                         offsets.append((x, y))
             self._offsetcache[distance] = offsets
@@ -285,7 +285,7 @@ class Player(threading.Thread):
         if not self.connected:
             return
         try:
-            self.socket.sendall(line+"\n")
+            self.socket.send((line+"\n").encode('UTF-8'))
         except socket.error:
             self.connected = False
             print("Player {} has disconnected...".format(self.name))
@@ -298,7 +298,7 @@ class Player(threading.Thread):
             yield line.rstrip()
 
         for data in iter(partial(self.socket.recv, 1024), ''):
-            self.buffer += data.lower()
+            self.buffer += data.decode('UTF-8').lower()
             temp = self.buffer.split("\n")
             temp.pop()
             for line in temp:
@@ -355,7 +355,7 @@ class GameServer:
 
     def wait_for_next_round(self, rounds_per_seconds):
         num_updates = int(20 / rounds_per_seconds)
-        for _ in xrange(num_updates):
+        for _ in range(num_updates):
             self.display.update(20)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -365,14 +365,14 @@ class GameServer:
 
     def wait_for_observsers(self):
         print("Waiting for {} observer(s) to connect...".format(self.numObservers))
-        for _ in xrange(self.numObservers):
+        for _ in range(self.numObservers):
             observer = self.get_player_from_socket()
             observer.name = "Observer"
             self.observers.append(observer)
 
     def wait_for_players(self):
         print("Waiting for {} player(s) to connect...".format(self.numPlayers))
-        for _ in xrange(self.numPlayers):
+        for _ in range(self.numPlayers):
             player = self.get_player_from_socket()
             player.start()
             self.players.append(player)
@@ -413,7 +413,7 @@ class GameServer:
                     x, y, direction = move
                     if self.board.move_unit(x, y, playerNum, direction):
                         legal_moves.append(move)
-                except (IndexError, ValueError, TypeError), e:
+                except (IndexError, ValueError, TypeError) as e:
                     print("{} sent an invalid move-command: '{}' Exception: {}".format(player.name, move, e.message))
             player.command["moves"] = legal_moves
         self.board.resolve_moves()
@@ -479,9 +479,9 @@ class GameServer:
             width, height, numPlayers = int(line[0]), int(line[1]), int(line[2])
             self.numPlayers = numPlayers
             self.board = GameBoard(width, height)
-            for y in xrange(height):
+            for y in range(height):
                 line = mapfile.readline().rstrip()
-                for x in xrange(width):
+                for x in range(width):
                     if line[x] == "#":
                         self.board.add_wall(x, y)
                     if line[x].isdigit():
@@ -537,7 +537,7 @@ if __name__ == '__main__':
     try:
         res = args["resolution"].split(",")
         w, h = int(res[0]), int(res[1])
-    except IndexError, ValueError:
+    except (IndexError, ValueError):
         print("Invalid argument given as resolution.")
     else:
         server = GameServer(args['port'], args['mapfile'], args["fps"], w, h, observers=args["observers"])
