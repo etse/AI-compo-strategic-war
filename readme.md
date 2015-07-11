@@ -214,7 +214,7 @@ If you try to move the same unit twice, or try to move an unit you do not own, t
 ignored by the server - while the others are executed as normal.
 
 A schema for the commands to send to the servercan be found in 
-[client_to_server.json](schemas/client_to_server.json).
+[client_to_server.json](server/schemas/client_to_server.json).
 
 ### States recieved by the server
 Each turn the game will send you the current state of the game, from your perspective. This means that it
@@ -250,7 +250,7 @@ A cell that has food:
 ```
 
 A schema for the commands sent by the server can be found in
-[server_to_client.json](schemas/server_to_client.json).
+[server_to_client.json](server/schemas/server_to_client.json).
 
 ## Getting started
 Some good starting tips is to start by trying to implement the following features:
@@ -283,7 +283,7 @@ executed). To save bandwidth empty cells are not sent - and information regardin
 is only sent the first time.
 
 For information about the protocol take a look the the
-[server_to_observer.json](schemas/server_to_observer.json) file.
+[server_to_observer.json](server/schemas/server_to_observer.json) file.
 
 ## TODO:
 * Add animations
