@@ -16,6 +16,8 @@ from functools import partial
 from itertools import chain
 from copy import copy
 
+import time
+
 
 class Unit:
     def __init__(self, owner, position):
@@ -26,10 +28,7 @@ class Unit:
         self.dead = False
         self.hasMoved = False
         self.attackStrength = 0
-
-    @property
-    def type(self):
-        return self.__class__.__name__.lower()
+        self.type = 'standard'
 
     def __str__(self):
         return "<{} at {}>".format(self.type, self.position)
@@ -43,6 +42,7 @@ class Harvester(Unit):
         Unit.__init__(self, owner, position)
         self.harvest = 2
         self.attack = 2
+        self.type = 'harvester'
 
 
 class Soldier(Unit):
@@ -50,6 +50,7 @@ class Soldier(Unit):
         Unit.__init__(self, owner, position)
         self.harvest = 0
         self.attack = 5
+        self.type = 'soldier'
 
 
 class Spawner(Unit):
@@ -195,10 +196,10 @@ class GameBoard:
                     cell.unit.hasMoved = False
                 cell.newUnit = None
 
-    def calculate_attack_strengths(self):
+    def calculate_attack_strengths(self, distance):
         for unit in self.units:
             x, y = unit.position
-            unit.attackStrength = sum(u.attack for u in self.get_neighbour_enemy_units(x, y, 5, unit.owner))
+            unit.attackStrength = sum(u.attack for u in self.get_neighbour_enemy_units(x, y, distance, unit.owner))
 
     def get_offsets(self, distance):
         if distance not in self._offsetcache:
@@ -336,9 +337,9 @@ class GameServer:
             self.start_next_turn()
             self.resolve_food_harvest()
             self.move_and_spawn_units()
-
             self.resolve_fights()
             self.destroy_spawners()
+
             if random.randrange(0, 100) < 17:
                 self.board.spawn_food()
 
@@ -429,7 +430,7 @@ class GameServer:
                     owner.food -= 1
 
     def resolve_fights(self):
-        self.board.calculate_attack_strengths()
+        self.board.calculate_attack_strengths(5)
         deadUnits = []
         for unit in self.board.units:
             x, y = unit.position
@@ -488,16 +489,28 @@ class GameServer:
                         self.board.add_spawner(x, y, int(line[x]))
 
     def send_gamestate_to_players(self):
-        for i, player in enumerate(self.players):
-            state = {"map_size": (self.board.width, self.board.height), "player_id": i, "num_players": self.numPlayers}
-            units = filter(lambda unit: unit.owner == i, self.board.units)
-            cells = set()
-            for unit in units:
-                x, y = unit.position
-                cells.add(self.board[x][y])
-                cells |= set(filter(lambda cell: not cell.empty(), self.board.get_neighbour_cells(x, y, 55)))
-            state["map"] = [cell.as_dict() for cell in cells]
+        visibility_board = self.get_unit_visibility()
+        for player_id, player in enumerate(self.players):
+            state = {"map_size": (self.board.width, self.board.height), "player_id": player_id, "num_players": self.numPlayers}
+            state["map"] = []
+            for x in range(len(visibility_board)):
+                for y in range(len(visibility_board[x])):
+                    if player_id in visibility_board[x][y]:
+                        state["map"].append(self.board[x][y].as_dict())
             player.send_gamestate(state)
+
+
+    def get_unit_visibility(self):
+        cell_visibility_mask = [[[] for _ in range(self.board.height)] for _ in range(self.board.width)]
+        for unit in self.board.units:
+            x, y = unit.position
+            if unit.owner not in cell_visibility_mask[x][y]:
+                cell_visibility_mask[x][y].append(unit.owner)
+            for cell in filter(lambda cell: not cell.empty(), self.board.get_neighbour_cells(x, y, 55)):
+                if unit.owner not in cell_visibility_mask[cell.x][cell.y]:
+                    cell_visibility_mask[cell.x][cell.y].append(unit.owner)
+        return cell_visibility_mask
+
 
     def send_gamestate_to_observers(self, unfiltered=False):
         if self.numObservers == 0:
